@@ -20,6 +20,11 @@ class TenantList extends Component
 
     public int $perPage = 15;
 
+    public function mount(): void
+    {
+        $this->authorize('viewAny', Tenant::class);
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();

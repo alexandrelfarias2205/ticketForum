@@ -1,10 +1,10 @@
 <div>
     <div class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-800">Integration Config — {{ $tenant->name }}</h2>
+        <h2 class="text-xl font-semibold text-gray-800">Configuração de Integração — {{ $tenant->name }}</h2>
         @if($existingPlatform)
-            <p class="mt-1 text-sm text-green-600">Active integration: <strong>{{ ucfirst($existingPlatform) }}</strong></p>
+            <p class="mt-1 text-sm text-green-600">Integração ativa: <strong>{{ ucfirst($existingPlatform) }}</strong></p>
         @else
-            <p class="mt-1 text-sm text-gray-500">No active integration configured.</p>
+            <p class="mt-1 text-sm text-gray-500">Nenhuma integração configurada.</p>
         @endif
     </div>
 
@@ -30,7 +30,7 @@
     @if($platform === 'jira')
         <form wire:submit="saveJira" class="space-y-5 max-w-lg">
             <div>
-                <label class="block text-sm font-medium text-gray-700">Atlassian Email</label>
+                <label class="block text-sm font-medium text-gray-700">E-mail Atlassian</label>
                 <input
                     type="email"
                     wire:model="jiraEmail"
@@ -41,7 +41,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">API Token</label>
+                <label class="block text-sm font-medium text-gray-700">Token de API</label>
                 <input
                     type="password"
                     wire:model="jiraApiToken"
@@ -52,7 +52,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Base URL</label>
+                <label class="block text-sm font-medium text-gray-700">URL Base</label>
                 <input
                     type="url"
                     wire:model="jiraBaseUrl"
@@ -63,7 +63,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Project Key</label>
+                <label class="block text-sm font-medium text-gray-700">Chave do Projeto</label>
                 <input
                     type="text"
                     wire:model="jiraProjectKey"
@@ -78,7 +78,7 @@
                     type="submit"
                     class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                    Save Jira Config
+                    Salvar configuração do Jira
                 </button>
             </div>
         </form>
@@ -88,7 +88,7 @@
     @if($platform === 'github')
         <form wire:submit="saveGitHub" class="space-y-5 max-w-lg">
             <div>
-                <label class="block text-sm font-medium text-gray-700">Personal Access Token</label>
+                <label class="block text-sm font-medium text-gray-700">Token de Acesso Pessoal</label>
                 <input
                     type="password"
                     wire:model="githubToken"
@@ -99,7 +99,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Repository Owner</label>
+                <label class="block text-sm font-medium text-gray-700">Dono do Repositório</label>
                 <input
                     type="text"
                     wire:model="githubOwner"
@@ -110,7 +110,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Repository Name</label>
+                <label class="block text-sm font-medium text-gray-700">Nome do Repositório</label>
                 <input
                     type="text"
                     wire:model="githubRepo"
@@ -125,7 +125,7 @@
                     type="submit"
                     class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                    Save GitHub Config
+                    Salvar configuração do GitHub
                 </button>
             </div>
         </form>

@@ -33,7 +33,7 @@ class EditUser extends Component
     }
 
     #[Computed]
-    public function tenants()
+    public function tenants(): \Illuminate\Database\Eloquent\Collection
     {
         return Tenant::query()->where('is_active', true)->orderBy('name')->get();
     }

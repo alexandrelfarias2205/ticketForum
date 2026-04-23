@@ -66,7 +66,7 @@ final class CreateGitHubIssueJob implements ShouldQueue
         $report->update([
             'external_issue_id'  => $issueNumber,
             'external_issue_url' => $issueUrl,
-            'external_platform'  => 'github',
+            'external_platform'  => \App\Enums\ExternalPlatform::GitHub,
         ]);
 
         $job->update([

@@ -69,7 +69,7 @@ test('user cannot vote on non-published report', function (): void {
 
     $this->actingAs($user)
         ->postJson(route('app.votes.toggle', $report))
-        ->assertStatus(500); // LogicException bubbles as 500 in test env
+        ->assertStatus(422);
 });
 
 test('vote is unique per user per report', function (): void {

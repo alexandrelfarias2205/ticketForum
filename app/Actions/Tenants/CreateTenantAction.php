@@ -12,7 +12,7 @@ class CreateTenantAction
         return Tenant::create([
             'name'      => $data['name'],
             'slug'      => Str::slug($data['name']),
-            'plan'      => $data['plan'] ?? 'free',
+            'plan'      => $data['plan'] ?? \App\Enums\TenantPlan::Free,
             'is_active' => true,
         ]);
     }

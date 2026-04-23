@@ -32,15 +32,7 @@
             <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
                 {{-- Meta --}}
                 <div class="flex flex-wrap gap-2">
-                    @php
-                        $typeBadge = match($report->type->value) {
-                            'bug'             => 'bg-red-100 text-red-700',
-                            'improvement'     => 'bg-blue-100 text-blue-700',
-                            'feature_request' => 'bg-indigo-100 text-indigo-700',
-                            default           => 'bg-gray-100 text-gray-700',
-                        };
-                    @endphp
-                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $typeBadge }}">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $report->type->badgeClasses() }}">
                         {{ $report->type->label() }}
                     </span>
                 </div>

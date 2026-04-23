@@ -6,15 +6,7 @@
             <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-2 mb-2">
                     {{-- Tipo --}}
-                    @php
-                        $typeBadge = match($report->type->value) {
-                            'bug'             => 'bg-red-100 text-red-700',
-                            'improvement'     => 'bg-blue-100 text-blue-700',
-                            'feature_request' => 'bg-indigo-100 text-indigo-700',
-                            default           => 'bg-gray-100 text-gray-700',
-                        };
-                    @endphp
-                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $typeBadge }}">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $report->type->badgeClasses() }}">
                         {{ $report->type->label() }}
                     </span>
                     {{-- Status --}}
@@ -40,7 +32,7 @@
                 </div>
             </div>
 
-            @if($report->status->value === 'pending_review' && auth()->id() === $report->author_id)
+            @if($report->status === \App\Enums\ReportStatus::PendingReview && auth()->id() === $report->author_id)
                 <a
                     href="{{ route('app.reports.edit', $report) }}"
                     wire:navigate
@@ -56,7 +48,7 @@
     </div>
 
     {{-- Banners de status --}}
-    @if($report->status->value === 'pending_review')
+    @if($report->status === \App\Enums\ReportStatus::PendingReview)
         <div class="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
             <div class="flex gap-3">
                 <svg class="h-5 w-5 flex-shrink-0 text-yellow-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -68,7 +60,7 @@
                 </p>
             </div>
         </div>
-    @elseif($report->status->value === 'rejected')
+    @elseif($report->status === \App\Enums\ReportStatus::Rejected)
         <div class="rounded-xl border border-red-200 bg-red-50 p-4">
             <div class="flex gap-3">
                 <svg class="h-5 w-5 flex-shrink-0 text-red-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -80,7 +72,7 @@
                 </div>
             </div>
         </div>
-    @elseif(in_array($report->status->value, ['approved', 'published_for_voting', 'in_progress', 'done']))
+    @elseif(in_array($report->status, [\App\Enums\ReportStatus::Approved, \App\Enums\ReportStatus::PublishedForVoting, \App\Enums\ReportStatus::InProgress, \App\Enums\ReportStatus::Done]))
         <div class="rounded-xl border border-green-200 bg-green-50 p-4">
             <div class="flex gap-3">
                 <svg class="h-5 w-5 flex-shrink-0 text-green-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -97,17 +89,11 @@
     {{-- Descrição --}}
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h2 class="text-base font-semibold text-gray-900 mb-3">Descrição</h2>
-        @if($report->enriched_description)
-            <div class="prose prose-sm max-w-none text-gray-700">
-                {!! nl2br(e($report->enriched_description)) !!}
-            </div>
-        @else
-            <div class="text-sm text-gray-700 whitespace-pre-wrap">{{ $report->description }}</div>
-        @endif
+        <p class="whitespace-pre-wrap">{{ $report->enriched_description ?? $report->description }}</p>
     </div>
 
     {{-- Labels (se aprovado) --}}
-    @if($report->labels->isNotEmpty() && in_array($report->status->value, ['approved', 'published_for_voting', 'in_progress', 'done']))
+    @if($report->labels->isNotEmpty() && in_array($report->status, [\App\Enums\ReportStatus::Approved, \App\Enums\ReportStatus::PublishedForVoting, \App\Enums\ReportStatus::InProgress, \App\Enums\ReportStatus::Done]))
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 class="text-base font-semibold text-gray-900 mb-3">Categorias</h2>
             <div class="flex flex-wrap gap-2">
@@ -148,7 +134,7 @@
 
         @php
             $isAuthor = auth()->id() === $report->author_id;
-            $isPending = $report->status->value === 'pending_review';
+            $isPending = $report->status === \App\Enums\ReportStatus::PendingReview;
             $canEdit = $isAuthor && $isPending;
             $images = $report->attachments->filter(fn($a) => $a->isImage());
             $links = $report->attachments->filter(fn($a) => $a->isLink());

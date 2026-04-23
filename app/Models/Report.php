@@ -38,6 +38,7 @@ class Report extends Model
         'vote_count',
         'reviewed_at',
         'published_at',
+        'rejection_reason',
     ];
 
     protected function casts(): array

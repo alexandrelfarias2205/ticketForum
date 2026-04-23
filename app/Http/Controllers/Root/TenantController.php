@@ -11,6 +11,8 @@ class TenantController extends Controller
 {
     public function index(): View
     {
+        $this->authorize('viewAny', Tenant::class);
+
         return view('root.tenants.index');
     }
 

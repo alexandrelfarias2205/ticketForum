@@ -80,15 +80,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @php
-                                $typeBadge = match($report->type->value) {
-                                    'bug'             => 'bg-red-100 text-red-700',
-                                    'improvement'     => 'bg-blue-100 text-blue-700',
-                                    'feature_request' => 'bg-indigo-100 text-indigo-700',
-                                    default           => 'bg-gray-100 text-gray-700',
-                                };
-                            @endphp
-                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $typeBadge }}">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $report->type->badgeClasses() }}">
                                 {{ $report->type->label() }}
                             </span>
                         </td>
@@ -116,7 +108,7 @@
                                 >
                                     Ver
                                 </a>
-                                @if($report->status->value === 'pending_review')
+                                @if($report->status === \App\Enums\ReportStatus::PendingReview)
                                     <a
                                         href="{{ route('app.reports.edit', $report) }}"
                                         wire:navigate

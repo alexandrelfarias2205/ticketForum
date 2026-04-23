@@ -11,9 +11,10 @@ class RejectReportAction
     public function handle(Report $report, User $reviewer, string $reason): Report
     {
         $report->update([
-            'status'      => ReportStatus::Rejected,
-            'reviewer_id' => $reviewer->id,
-            'reviewed_at' => now(),
+            'status'           => ReportStatus::Rejected,
+            'reviewer_id'      => $reviewer->id,
+            'reviewed_at'      => now(),
+            'rejection_reason' => $reason,
         ]);
 
         return $report->fresh();

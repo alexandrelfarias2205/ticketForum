@@ -13,11 +13,11 @@ class CastVoteAction
     public function handle(User $user, Report $report): Vote
     {
         if ($report->status !== ReportStatus::PublishedForVoting) {
-            throw new \LogicException('Apenas relatórios publicados para votação podem receber votos.');
+            throw new \LogicException('Only published reports can receive votes.');
         }
 
         if (Vote::where('report_id', $report->id)->where('user_id', $user->id)->exists()) {
-            throw new \LogicException('Usuário já votou neste relatório.');
+            throw new \LogicException('User has already voted on this report.');
         }
 
         return DB::transaction(function () use ($user, $report): Vote {

@@ -17,6 +17,8 @@ class EditTenant extends Component
 
     public function mount(Tenant $tenant): void
     {
+        $this->authorize('update', $tenant);
+
         $this->tenant    = $tenant;
         $this->name      = $tenant->name;
         $this->plan      = $tenant->plan->value;

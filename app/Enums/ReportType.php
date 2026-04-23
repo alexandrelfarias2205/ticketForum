@@ -16,4 +16,13 @@ enum ReportType: string
             self::FeatureRequest => 'Nova Funcionalidade',
         };
     }
+
+    public function badgeClasses(): string
+    {
+        return match($this) {
+            self::Bug            => 'bg-red-100 text-red-700',
+            self::Improvement    => 'bg-blue-100 text-blue-700',
+            self::FeatureRequest => 'bg-indigo-100 text-indigo-700',
+        };
+    }
 }

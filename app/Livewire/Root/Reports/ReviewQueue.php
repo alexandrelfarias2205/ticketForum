@@ -27,6 +27,11 @@ class ReviewQueue extends Component
 
     public int $perPage = 20;
 
+    public function mount(): void
+    {
+        $this->authorize('viewAny', Report::class);
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -43,7 +48,7 @@ class ReviewQueue extends Component
     }
 
     #[Computed]
-    public function tenants()
+    public function tenants(): \Illuminate\Database\Eloquent\Collection
     {
         return Tenant::query()->orderBy('name')->get(['id', 'name']);
     }

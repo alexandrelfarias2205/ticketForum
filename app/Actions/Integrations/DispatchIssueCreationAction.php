@@ -25,9 +25,9 @@ final class DispatchIssueCreationAction
             'status'    => IntegrationJobStatus::Pending,
         ]);
 
-        match ($integration->platform->value) {
-            'jira'   => CreateJiraIssueJob::dispatch($report->id, $integrationJob->id)->onQueue('integrations'),
-            'github' => CreateGitHubIssueJob::dispatch($report->id, $integrationJob->id)->onQueue('integrations'),
+        match ($integration->platform) {
+            \App\Enums\ExternalPlatform::Jira   => CreateJiraIssueJob::dispatch($report->id, $integrationJob->id)->onQueue('integrations'),
+            \App\Enums\ExternalPlatform::GitHub => CreateGitHubIssueJob::dispatch($report->id, $integrationJob->id)->onQueue('integrations'),
         };
 
         return $integrationJob;

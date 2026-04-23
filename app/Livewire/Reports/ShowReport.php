@@ -42,7 +42,7 @@ class ShowReport extends Component
     {
         $this->authorize('update', $this->report);
 
-        $attachment = ReportAttachment::findOrFail($attachmentId);
+        $attachment = $this->report->attachments()->findOrFail($attachmentId);
 
         $action->handle($attachment);
 

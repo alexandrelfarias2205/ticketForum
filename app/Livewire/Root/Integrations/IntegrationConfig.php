@@ -72,7 +72,7 @@ final class IntegrationConfig extends Component
         ]);
 
         $this->existingPlatform = 'jira';
-        $this->dispatch('notify', message: 'Jira integration saved successfully.', type: 'success');
+        $this->dispatch('notify', message: 'Configuração do Jira salva com sucesso.', type: 'success');
     }
 
     public function saveGitHub(SaveIntegrationConfigAction $action): void
@@ -92,7 +92,7 @@ final class IntegrationConfig extends Component
         ]);
 
         $this->existingPlatform = 'github';
-        $this->dispatch('notify', message: 'GitHub integration saved successfully.', type: 'success');
+        $this->dispatch('notify', message: 'Configuração do GitHub salva com sucesso.', type: 'success');
     }
 
     public function render(): View

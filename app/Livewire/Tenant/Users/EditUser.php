@@ -21,11 +21,7 @@ class EditUser extends Component
 
     public function mount(User $user): void
     {
-        abort_unless(
-            $user->tenant_id === auth()->user()->tenant_id,
-            403,
-            'Acesso não autorizado.'
-        );
+        $this->authorize('update', $user);
 
         $this->user      = $user;
         $this->name      = $user->name;

@@ -33,7 +33,7 @@ final class IntegrationController extends Controller
 
         return redirect()
             ->route('root.tenants.integration.edit', $tenant)
-            ->with('success', 'Jira integration saved successfully.');
+            ->with('success', 'Configuração do Jira salva com sucesso.');
     }
 
     public function storeGitHub(
@@ -45,6 +45,6 @@ final class IntegrationController extends Controller
 
         return redirect()
             ->route('root.tenants.integration.edit', $tenant)
-            ->with('success', 'GitHub integration saved successfully.');
+            ->with('success', 'Configuração do GitHub salva com sucesso.');
     }
 }

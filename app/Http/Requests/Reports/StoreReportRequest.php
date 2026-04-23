@@ -2,17 +2,13 @@
 
 namespace App\Http\Requests\Reports;
 
-use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreReportRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        /** @var \App\Models\User $user */
-        $user = $this->user();
-
-        return $user->role !== UserRole::Root;
+        return $this->user()->can('create', \App\Models\Report::class);
     }
 
     public function rules(): array

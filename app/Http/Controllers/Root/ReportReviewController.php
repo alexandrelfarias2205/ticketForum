@@ -42,7 +42,7 @@ class ReportReviewController extends Controller
         $action->handle($report, $reviewer, $request->validated());
 
         return redirect()->route('root.reports.show', $report)
-            ->with('success', 'Report approved successfully.');
+            ->with('success', 'Relatório aprovado com sucesso.');
     }
 
     public function reject(
@@ -58,7 +58,7 @@ class ReportReviewController extends Controller
         $action->handle($report, $reviewer, $request->validated('reason'));
 
         return redirect()->route('root.reports.show', $report)
-            ->with('success', 'Report rejected.');
+            ->with('success', 'Relatório rejeitado.');
     }
 
     public function publish(Report $report, PublishReportAction $action): RedirectResponse
@@ -68,7 +68,7 @@ class ReportReviewController extends Controller
         $action->handle($report);
 
         return redirect()->route('root.reports.show', $report)
-            ->with('success', 'Report published for voting.');
+            ->with('success', 'Relatório publicado para votação!');
     }
 
     public function createIssue(Report $report, DispatchIssueCreationAction $action): RedirectResponse
