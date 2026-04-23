@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Root;
 
+use App\Actions\Integrations\DispatchIssueCreationAction;
 use App\Actions\Reports\ApproveReportAction;
 use App\Actions\Reports\PublishReportAction;
 use App\Actions\Reports\RejectReportAction;
@@ -68,5 +69,18 @@ class ReportReviewController extends Controller
 
         return redirect()->route('root.reports.show', $report)
             ->with('success', 'Report published for voting.');
+    }
+
+    public function createIssue(Report $report, DispatchIssueCreationAction $action): RedirectResponse
+    {
+        $this->authorize('createIssue', $report);
+
+        if ($report->external_issue_id !== null) {
+            return redirect()->back()->with('info', 'Issue já criada: ' . $report->external_issue_url);
+        }
+
+        $action->handle($report);
+
+        return redirect()->back()->with('success', 'Issue sendo criada. Aguarde alguns instantes.');
     }
 }

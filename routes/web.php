@@ -29,6 +29,14 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->name('root.')->group(f
     Route::post('reports/{report}/approve', [\App\Http\Controllers\Root\ReportReviewController::class, 'approve'])->name('reports.approve');
     Route::post('reports/{report}/reject', [\App\Http\Controllers\Root\ReportReviewController::class, 'reject'])->name('reports.reject');
     Route::post('reports/{report}/publish', [\App\Http\Controllers\Root\ReportReviewController::class, 'publish'])->name('reports.publish');
+
+    // Integration configuration per tenant
+    Route::get('tenants/{tenant}/integration', [\App\Http\Controllers\Root\IntegrationController::class, 'edit'])->name('tenants.integration.edit');
+    Route::post('tenants/{tenant}/integration/jira', [\App\Http\Controllers\Root\IntegrationController::class, 'storeJira'])->name('tenants.integration.jira');
+    Route::post('tenants/{tenant}/integration/github', [\App\Http\Controllers\Root\IntegrationController::class, 'storeGitHub'])->name('tenants.integration.github');
+
+    // Create issue from approved/published report
+    Route::post('reports/{report}/create-issue', [\App\Http\Controllers\Root\ReportReviewController::class, 'createIssue'])->name('reports.create-issue');
 });
 
 // Tenant routes (tenant_admin + tenant_user)
