@@ -13,6 +13,8 @@
 | Jira/GitHub Jobs, webhooks | `integration-specialist` | sonnet |
 | Alpine.js components, Vite, app.js | `javascript-specialist` | haiku |
 | UI/UX design, layouts, component design | `ux-specialist` | sonnet |
+| Code review — rules, security, DRY, language | `code-reviewer` | sonnet |
+| QA — test coverage gaps, missing tests, suite | `qa-specialist` | sonnet |
 
 **Use haiku** for formulaic, template-driven tasks (migrations, alpine components, boilerplate).
 **Use sonnet** for standard implementation tasks (Livewire, services, actions, integrations).

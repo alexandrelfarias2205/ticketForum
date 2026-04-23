@@ -7,7 +7,9 @@
     "security-specialist": "Auth, authorization, multi-tenant isolation, encryption, rate limiting",
     "integration-specialist": "Jira + GitHub Issues — queue jobs, webhooks, external APIs",
     "javascript-specialist": "Alpine.js + Vite — client-side components, toast, file upload, vote UX",
-    "ux-specialist": "UI/UX design — layouts, components, empty/error/loading states, accessibility"
+    "ux-specialist": "UI/UX design — layouts, components, empty/error/loading states, accessibility",
+    "code-reviewer": "Code review — DRY, strict_types, auth, security, language rules, architecture",
+    "qa-specialist": "QA — test coverage gaps, missing tests, suite execution and fixing"
   },
   "skills": {
     "create-livewire": "Scaffold Livewire v3 component + Blade view pair",
@@ -15,6 +17,8 @@
     "create-action": "Scaffold single-purpose Action class",
     "create-model": "Generate Eloquent model with casts, relationships, scopes",
     "create-alpine-component": "Create Alpine.js component exported for app.js",
-    "create-blade-component": "Create anonymous Blade component with @props"
+    "create-blade-component": "Create anonymous Blade component with @props",
+    "review": "Code review on changed/specified files — outputs findings by severity",
+    "qa": "QA analysis — coverage gaps, missing tests, run suite, fix failures"
   }
 }
