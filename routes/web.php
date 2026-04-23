@@ -37,6 +37,12 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->name('root.')->group(f
 
     // Create issue from approved/published report
     Route::post('reports/{report}/create-issue', [\App\Http\Controllers\Root\ReportReviewController::class, 'createIssue'])->name('reports.create-issue');
+
+    // Voting / Ranking
+    Route::get('voting', \App\Http\Controllers\Root\VotingRankingController::class)->name('voting.index');
+
+    // Entregas (relatórios concluídos)
+    Route::get('delivered', \App\Http\Controllers\Root\DeliveredController::class)->name('delivered.index');
 });
 
 // Tenant routes (tenant_admin + tenant_user)
