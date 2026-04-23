@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# xquads-squads — local only, not versioned
+.claude/xquads-squads/
