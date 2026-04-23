@@ -52,8 +52,8 @@ Route::middleware(['auth', 'tenant'])->prefix('app')->name('app.')->group(functi
     Route::resource('reports', \App\Http\Controllers\Tenant\ReportController::class)
         ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
 
-    Route::post('reports/{report}/attachments', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'store'])->name('reports.attachments.store');
-    Route::post('reports/{report}/links', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'storeLink'])->name('reports.links.store');
+    Route::post('reports/{report}/attachments', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'store'])->name('reports.attachments.store')->middleware('throttle:attachments');
+    Route::post('reports/{report}/links', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'storeLink'])->name('reports.links.store')->middleware('throttle:attachments');
     Route::delete('reports/attachments/{attachment}', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'destroy'])->name('reports.attachments.destroy');
     Route::get('reports/attachments/{attachment}/download', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'download'])->name('reports.attachments.download');
 
@@ -61,7 +61,7 @@ Route::middleware(['auth', 'tenant'])->prefix('app')->name('app.')->group(functi
     Route::get('voting', \App\Http\Controllers\Tenant\VotingController::class)->name('voting.index');
 
     // Vote toggle (single endpoint handles both cast and retract)
-    Route::post('reports/{report}/vote', [\App\Http\Controllers\Tenant\VoteController::class, 'toggle'])->name('votes.toggle');
+    Route::post('reports/{report}/vote', [\App\Http\Controllers\Tenant\VoteController::class, 'toggle'])->name('votes.toggle')->middleware('throttle:votes');
 });
 
 // Redirect after login based on role
