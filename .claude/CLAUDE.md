@@ -4,21 +4,58 @@
 
 **Every construction, improvement, or repair task MUST be executed by the appropriate specialist agent — never inline by the orchestrator.**
 
+### Core Engineering
+
 | Task | Agent | Model |
 |------|-------|-------|
 | Any PHP/Laravel backend code | `backend-specialist` | sonnet |
 | Migrations, schema, indexes, factories | `database-specialist` | haiku |
 | Livewire components, Blade views, layouts | `frontend-specialist` | sonnet |
-| Auth, authorization, security audits | `security-specialist` | opus |
-| Jira/GitHub Jobs, webhooks | `integration-specialist` | sonnet |
+| Auth, authorization, multi-tenant isolation | `security-specialist` | opus |
+| OWASP, secure coding, XSS/SQLi/CSRF patterns | `appsec-specialist` | opus |
+| Dependency CVEs, composer audit, vuln mgmt | `vulnerability-analyst` | sonnet |
+| Jira/GitHub Jobs, webhooks, external APIs | `integration-specialist` | sonnet |
 | Alpine.js components, Vite, app.js | `javascript-specialist` | haiku |
-| UI/UX design, layouts, component design | `ux-specialist` | sonnet |
-| Code review — rules, security, DRY, language | `code-reviewer` | sonnet |
+
+### Design & UX
+
+| Task | Agent | Model |
+|------|-------|-------|
+| Design orchestration — route to right design agent | `design-chief` | sonnet |
+| UX decisions, user flows, accessibility, heuristics | `ux-specialist` | sonnet |
+| Design system tokens, Blade component library | `design-system-architect` | sonnet |
+| UI code production — Tailwind + Alpine.js + Blade | `ui-engineer` | haiku |
+
+### Quality & Review
+
+| Task | Agent | Model |
+|------|-------|-------|
+| Code review — DRY, rules, security, language | `code-reviewer` | sonnet |
 | QA — test coverage gaps, missing tests, suite | `qa-specialist` | sonnet |
 
-**Use haiku** for formulaic, template-driven tasks (migrations, alpine components, boilerplate).
-**Use sonnet** for standard implementation tasks (Livewire, services, actions, integrations).
-**Use opus** only for security — where deep reasoning about edge cases and attack vectors is required.
+### Claude Code & Infrastructure
+
+| Task | Agent | Model |
+|------|-------|-------|
+| Hooks — pre/post tool-use, stop events | `hooks-architect` | haiku |
+| Settings, permissions, CLAUDE.md management | `config-engineer` | haiku |
+| New skills and slash commands creation | `skill-craftsman` | sonnet |
+| Multi-agent orchestration, parallel execution | `swarm-orchestrator` | opus |
+
+### Strategy & Advisory
+
+| Task | Agent | Model |
+|------|-------|-------|
+| SaaS metrics, NRR, churn, tenant health | `customer-success-advisor` | sonnet |
+| Analytics KPIs, measurement, dashboards | `analytics-advisor` | sonnet |
+
+---
+
+### Model Selection Rule
+
+**haiku** — formulaic, template-driven: migrations, alpine components, UI code, hooks config.
+**sonnet** — standard implementation: Livewire, services, actions, integrations, design, review.
+**opus** — deep reasoning only: security (multi-tenant isolation, OWASP), swarm orchestration.
 
 The orchestrator's job is to route, coordinate, and verify — not to write code directly.
 

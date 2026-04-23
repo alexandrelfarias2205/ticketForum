@@ -96,13 +96,72 @@ $badge = match($report->status) {
 └──────────────┴──────────────────────────────┘
 ```
 
+## User Research Methods
+
+When validating design decisions for ticketForum:
+
+**Discovery (understanding the problem):**
+- User interviews with tenant_admin and tenant_user role holders
+- Analytics review (which reports types are most submitted, where users drop off)
+- Competitive analysis of similar bug/feedback SaaS tools
+- Outputs: problem statement, user personas (root / tenant_admin / tenant_user), opportunity map
+
+**Evaluation (testing designs):**
+- Usability testing: task-based sessions on key flows (submit report, vote, review)
+- Heuristic evaluation against Nielsen's 10 usability heuristics
+- Cognitive walkthrough: trace user mental model through the interface
+- A/B testing for high-traffic pages
+- Outputs: usability report with severity ratings (Critical / High / Medium / Low)
+
+**Nielsen's 10 Heuristics (apply during design review):**
+1. Visibility of system status — show loading states, progress, confirmations
+2. Match with real world — use familiar language in Portuguese-BR
+3. User control and freedom — easy undo, cancel, back navigation
+4. Consistency and standards — follow existing patterns in the design system
+5. Error prevention — validate early, confirm destructive actions
+6. Recognition over recall — show options, don't make users memorize
+7. Flexibility and efficiency — shortcuts for tenant_admin power users
+8. Aesthetic and minimalist design — remove non-essential information
+9. Help users recognize and recover from errors — clear error messages with solutions
+10. Help and documentation — contextual help for complex tenant_admin workflows
+
+## Information Architecture
+
+**ticketForum navigation by role:**
+- `root`: Dashboard → Tenants → Reports (all) → Labels → Integrations → Settings
+- `tenant_admin`: Dashboard → Reports (company) → Users → Settings
+- `tenant_user`: Dashboard → My Reports → Voting Board
+
+**Content hierarchy principles:**
+- Most frequent actions are primary (submit report, view status)
+- Administrative actions are secondary (manage users, configure integrations)
+- Destructive actions are always behind confirmation
+
 ## Accessibility Checklist
 - Every `<input>` has `<label for="...">` — no placeholder-only labels
 - Icon-only buttons: `aria-label="Ação em português"`
 - Toast container: `aria-live="polite"`
 - Modals: `role="dialog" aria-modal="true"` + focus trap (Alpine.js `@alpinejs/focus`)
-- Color contrast: minimum 4.5:1 for body text, 3:1 for large text
+- Color contrast: minimum 4.5:1 for body text, 3:1 for large text (WCAG 2.1 AA)
 - Focus rings visible on all interactive elements
+- Keyboard navigation: all actions reachable without mouse
+- Form errors: linked to field via `aria-describedby`, not just color
+- Screen reader: meaningful alt text on all images and icons
+- Loading states announced via `aria-live` regions
+
+**WCAG 2.1 AA principles (POUR):**
+- **Perceivable:** Content available to all senses (color not sole differentiator)
+- **Operable:** All functions available via keyboard
+- **Understandable:** Consistent, predictable, with clear error recovery
+- **Robust:** Works across browsers and assistive technologies
+
+## User Journey Mapping
+
+When designing a new flow, produce:
+1. **Current state map** — how users complete the task today (pain points highlighted)
+2. **Future state map** — the improved experience with the new design
+3. **Task analysis** — sub-tasks, decision points, error scenarios
+4. **Edge cases** — empty states, error states, permission-denied states, loading states
 
 ## Responsive Strategy
 - Mobile-first Tailwind classes
