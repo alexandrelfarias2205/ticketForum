@@ -21,6 +21,8 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->name('root.')->group(f
     Route::resource('tenants', \App\Http\Controllers\Root\TenantController::class);
     Route::resource('users', \App\Http\Controllers\Root\UserController::class);
 
+    Route::resource('labels', \App\Http\Controllers\Root\LabelController::class);
+
     // Root — review queue
     Route::get('reports', [\App\Http\Controllers\Root\ReportReviewController::class, 'index'])->name('reports.index');
     Route::get('reports/{report}', [\App\Http\Controllers\Root\ReportReviewController::class, 'show'])->name('reports.show');
@@ -47,7 +49,11 @@ Route::middleware(['auth', 'tenant'])->prefix('app')->name('app.')->group(functi
     Route::delete('reports/attachments/{attachment}', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'destroy'])->name('reports.attachments.destroy');
     Route::get('reports/attachments/{attachment}/download', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'download'])->name('reports.attachments.download');
 
-    Route::get('/voting', fn() => view('app.dashboard'))->name('voting.index');
+    // Voting board
+    Route::get('voting', \App\Http\Controllers\Tenant\VotingController::class)->name('voting.index');
+
+    // Vote toggle (single endpoint handles both cast and retract)
+    Route::post('reports/{report}/vote', [\App\Http\Controllers\Tenant\VoteController::class, 'toggle'])->name('votes.toggle');
 });
 
 // Redirect after login based on role
