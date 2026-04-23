@@ -20,6 +20,13 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->name('root.')->group(f
     Route::get('/dashboard', fn() => view('root.dashboard'))->name('dashboard');
     Route::resource('tenants', \App\Http\Controllers\Root\TenantController::class);
     Route::resource('users', \App\Http\Controllers\Root\UserController::class);
+
+    // Root — review queue
+    Route::get('reports', [\App\Http\Controllers\Root\ReportReviewController::class, 'index'])->name('reports.index');
+    Route::get('reports/{report}', [\App\Http\Controllers\Root\ReportReviewController::class, 'show'])->name('reports.show');
+    Route::post('reports/{report}/approve', [\App\Http\Controllers\Root\ReportReviewController::class, 'approve'])->name('reports.approve');
+    Route::post('reports/{report}/reject', [\App\Http\Controllers\Root\ReportReviewController::class, 'reject'])->name('reports.reject');
+    Route::post('reports/{report}/publish', [\App\Http\Controllers\Root\ReportReviewController::class, 'publish'])->name('reports.publish');
 });
 
 // Tenant routes (tenant_admin + tenant_user)
@@ -31,8 +38,15 @@ Route::middleware(['auth', 'tenant'])->prefix('app')->name('app.')->group(functi
         Route::resource('users', \App\Http\Controllers\Tenant\UserController::class);
     });
 
-    // Placeholder routes for views not yet implemented
-    Route::get('/reports', fn() => view('app.dashboard'))->name('reports.index');
+    // Reports — tenant users
+    Route::resource('reports', \App\Http\Controllers\Tenant\ReportController::class)
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+
+    Route::post('reports/{report}/attachments', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'store'])->name('reports.attachments.store');
+    Route::post('reports/{report}/links', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'storeLink'])->name('reports.links.store');
+    Route::delete('reports/attachments/{attachment}', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'destroy'])->name('reports.attachments.destroy');
+    Route::get('reports/attachments/{attachment}/download', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'download'])->name('reports.attachments.download');
+
     Route::get('/voting', fn() => view('app.dashboard'))->name('voting.index');
 });
 

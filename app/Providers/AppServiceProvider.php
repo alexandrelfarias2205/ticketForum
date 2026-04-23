@@ -2,8 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Label;
+use App\Models\Report;
+use App\Models\ReportAttachment;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Policies\LabelPolicy;
+use App\Policies\ReportPolicy;
 use App\Policies\TenantPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -26,5 +31,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Tenant::class, TenantPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Report::class, ReportPolicy::class);
+        Gate::policy(ReportAttachment::class, ReportPolicy::class);
+        Gate::policy(Label::class, LabelPolicy::class);
     }
 }
