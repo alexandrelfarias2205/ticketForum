@@ -30,10 +30,11 @@ final class CreateProduct extends Component
         $this->validate();
 
         Product::create([
-            'tenant_id'   => auth()->user()->tenant_id,
-            'name'        => $this->name,
-            'description' => $this->description ?: null,
-            'is_active'   => true,
+            'tenant_id'      => auth()->user()->tenant_id,
+            'name'           => $this->name,
+            'description'    => $this->description ?: null,
+            'repository_url' => $this->repositoryUrl ?: null,
+            'is_active'      => true,
         ]);
 
         session()->flash('success', 'Produto criado com sucesso.');

@@ -27,7 +27,7 @@ final class ProductList extends Component
 
     public function toggleActive(string $id): void
     {
-        $this->authorize('viewAny', Product::class);
+        $this->authorize('update', Product::class);
 
         $product = Product::where('tenant_id', auth()->user()->tenant_id)->findOrFail($id);
 
@@ -43,7 +43,7 @@ final class ProductList extends Component
 
     public function delete(string $id): void
     {
-        $this->authorize('viewAny', Product::class);
+        $this->authorize('delete', Product::class);
 
         $product = Product::where('tenant_id', auth()->user()->tenant_id)
             ->withCount('reports')

@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PlatformSetting extends Model
+final class PlatformSetting extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $keyType = 'string';
-    public $incrementing = false;
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
 
     protected $fillable = [
         'key',
