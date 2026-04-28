@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'anthropic' => [
+        'api_key'           => env('ANTHROPIC_API_KEY'),
+        'api_url'           => env('ANTHROPIC_API_URL', 'https://api.anthropic.com/v1/messages'),
+        'version'           => env('ANTHROPIC_API_VERSION', '2023-06-01'),
+        'similarity_model'  => env('ANTHROPIC_SIMILARITY_MODEL', 'claude-haiku-4-5-20251001'),
+        'moderation_model'  => env('ANTHROPIC_MODERATION_MODEL', 'claude-haiku-4-5-20251001'),
+        'risk_model'        => env('ANTHROPIC_RISK_MODEL', 'claude-sonnet-4-6'),
+    ],
+
 ];
