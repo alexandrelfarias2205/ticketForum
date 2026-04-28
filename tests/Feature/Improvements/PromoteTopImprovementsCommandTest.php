@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-use App\Actions\Integrations\DispatchIssueCreationAction;
 use App\Enums\ReportStatus;
 use App\Models\Report;
 use App\Models\Tenant;
+use App\Models\TenantIntegration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -14,12 +14,19 @@ beforeEach(function (): void {
     $this->tenant = Tenant::factory()->create();
     $this->author = User::factory()->tenantUser($this->tenant)->create();
 
-    // Bind a no-op dispatcher so no queue jobs are really dispatched
-    $this->app->bind(DispatchIssueCreationAction::class, function (): DispatchIssueCreationAction {
-        $mock = Mockery::mock(DispatchIssueCreationAction::class);
-        $mock->shouldReceive('handle')->andReturn(null);
-        return $mock;
-    });
+    // Provide a real TenantIntegration so DispatchIssueCreationAction can resolve a platform
+    TenantIntegration::withoutGlobalScopes()->create([
+        'tenant_id' => $this->tenant->id,
+        'platform'  => 'github',
+        'config'    => encrypt([
+            'token' => 'ghp_test',
+            'owner' => 'acme',
+            'repo'  => 'repo',
+        ]),
+        'is_active' => true,
+    ]);
+
+    Queue::fake();
 });
 
 test('promotes top N improvements to in_progress', function (): void {
@@ -69,9 +76,9 @@ test('outputs message when no eligible improvements exist', function (): void {
 
 test('does not promote duplicate improvements', function (): void {
     Report::factory()->improvement()->publishedForVoting()->create([
-        'tenant_id'   => $this->tenant->id,
-        'author_id'   => $this->author->id,
-        'vote_count'  => 20,
+        'tenant_id'    => $this->tenant->id,
+        'author_id'    => $this->author->id,
+        'vote_count'   => 20,
         'is_duplicate' => true,
     ]);
     Report::factory()->improvement()->publishedForVoting()->create([
@@ -82,7 +89,6 @@ test('does not promote duplicate improvements', function (): void {
 
     $this->artisan('improvements:promote', ['--limit' => 5])->assertSuccessful();
 
-    // Only the non-duplicate should be promoted
     $count = Report::withoutGlobalScopes()
         ->where('status', ReportStatus::InProgress)
         ->count();

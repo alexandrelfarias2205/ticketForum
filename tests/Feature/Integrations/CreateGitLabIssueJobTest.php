@@ -45,7 +45,7 @@ function makeGitLabSetup(): array
 
 test('job creates gitlab issue and updates report', function (): void {
     Http::fake([
-        'gitlab.com/*' => Http::response([
+        'https://gitlab.com/*' => Http::response([
             'iid'     => 7,
             'web_url' => 'https://gitlab.com/acme/repo/-/issues/7',
         ], 201),
@@ -92,7 +92,7 @@ test('job is idempotent when report already has external_issue_id', function ():
 
 test('job marks integration job failed when api returns error', function (): void {
     Http::fake([
-        'gitlab.com/*' => Http::response(['message' => 'Unauthorized'], 401),
+        'https://gitlab.com/*' => Http::response(['message' => 'Unauthorized'], 401),
     ]);
 
     [$report, $integrationJob] = makeGitLabSetup();

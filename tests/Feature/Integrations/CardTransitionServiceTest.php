@@ -35,7 +35,7 @@ function makeReportWithPlatform(ExternalPlatform $platform, array $config): arra
 
 test('transitions jira card to code review', function (): void {
     Http::fake([
-        '*.atlassian.net/rest/api/3/issue/*/transitions' => Http::sequence()
+        'https://*.atlassian.net/rest/api/3/issue/*/transitions' => Http::sequence()
             ->push([
                 'transitions' => [
                     ['id' => '31', 'name' => 'Code Review'],
@@ -58,7 +58,7 @@ test('transitions jira card to code review', function (): void {
 
 test('adds code-review label on github issue', function (): void {
     Http::fake([
-        'api.github.com/*' => Http::response([], 200),
+        'https://api.github.com/*' => Http::response([], 200),
     ]);
 
     [$report] = makeReportWithPlatform(ExternalPlatform::GitHub, [
@@ -74,7 +74,7 @@ test('adds code-review label on github issue', function (): void {
 
 test('updates gitlab issue labels', function (): void {
     Http::fake([
-        'gitlab.com/*' => Http::response([], 200),
+        'https://gitlab.com/*' => Http::response([], 200),
     ]);
 
     [$report] = makeReportWithPlatform(ExternalPlatform::GitLab, [

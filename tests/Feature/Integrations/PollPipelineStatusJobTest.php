@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
 use App\Enums\ExternalPlatform;
+use App\Enums\IntegrationJobStatus;
 use App\Events\PipelineFailed;
 use App\Events\PipelineSucceeded;
-use App\Jobs\PollPipelineStatusJob;
+use App\Models\AgentLog;
+use App\Models\IntegrationJob;
 use App\Models\Report;
 use App\Models\Tenant;
 use App\Models\TenantIntegration;
@@ -15,7 +17,7 @@ use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
-function makeReportWithGitHubIntegration(): Report
+function makeGitHubReport(): Report
 {
     $tenant = Tenant::factory()->create();
     $author = User::factory()->tenantUser($tenant)->create();
@@ -41,7 +43,7 @@ function makeReportWithGitHubIntegration(): Report
     return $report;
 }
 
-function makeReportWithGitLabIntegration(): Report
+function makeGitLabReport(): Report
 {
     $tenant = Tenant::factory()->create();
     $author = User::factory()->tenantUser($tenant)->create();
@@ -67,12 +69,11 @@ function makeReportWithGitLabIntegration(): Report
     return $report;
 }
 
-test('detects github pipeline success and fires PipelineSucceeded event', function (): void {
-    Event::fake();
+test('github pipeline success: logs success status and dispatches OpenMergeRequestJob', function (): void {
     Queue::fake();
 
     Http::fake([
-        'api.github.com/*' => Http::response([
+        'https://api.github.com/*' => Http::response([
             'workflow_runs' => [[
                 'status'     => 'completed',
                 'conclusion' => 'success',
@@ -80,36 +81,40 @@ test('detects github pipeline success and fires PipelineSucceeded event', functi
         ], 200),
     ]);
 
-    $report = makeReportWithGitHubIntegration();
+    $report = makeGitHubReport();
 
-    (new PollPipelineStatusJob((string) $report->id, 'fix/branch-1'))->handle();
+    (new App\Jobs\PollPipelineStatusJob((string) $report->id, 'fix/branch-1'))->handle();
 
-    Event::assertDispatched(PipelineSucceeded::class, fn ($e): bool => $e->report->id === $report->id);
+    $log = AgentLog::where('report_id', $report->id)->latest()->first();
+    expect($log)->not->toBeNull()
+        ->and($log->payload['status'])->toBe('success');
+
+    Queue::assertPushed(App\Jobs\OpenMergeRequestJob::class);
 });
 
-test('detects gitlab pipeline success and fires PipelineSucceeded event', function (): void {
-    Event::fake();
+test('gitlab pipeline success: logs success status', function (): void {
     Queue::fake();
 
     Http::fake([
-        'gitlab.com/*' => Http::response([
+        'https://gitlab.com/*' => Http::response([
             ['status' => 'success'],
         ], 200),
     ]);
 
-    $report = makeReportWithGitLabIntegration();
+    $report = makeGitLabReport();
 
-    (new PollPipelineStatusJob((string) $report->id, 'fix/branch-1'))->handle();
+    (new App\Jobs\PollPipelineStatusJob((string) $report->id, 'fix/branch-1'))->handle();
 
-    Event::assertDispatched(PipelineSucceeded::class, fn ($e): bool => $e->report->id === $report->id);
+    $log = AgentLog::where('report_id', $report->id)->latest()->first();
+    expect($log)->not->toBeNull()
+        ->and($log->payload['status'])->toBe('success');
 });
 
-test('max poll attempts exhausted fires PipelineFailed event', function (): void {
-    Event::fake();
+test('max poll attempts exhausted creates failed IntegrationJob', function (): void {
     Queue::fake();
 
     Http::fake([
-        'api.github.com/*' => Http::response([
+        'https://api.github.com/*' => Http::response([
             'workflow_runs' => [[
                 'status'     => 'in_progress',
                 'conclusion' => null,
@@ -117,20 +122,22 @@ test('max poll attempts exhausted fires PipelineFailed event', function (): void
         ], 200),
     ]);
 
-    $report = makeReportWithGitHubIntegration();
+    $report = makeGitHubReport();
 
-    // Pass pollAttempt = MAX_POLLS (30) so next schedule triggers failure
-    (new PollPipelineStatusJob((string) $report->id, 'fix/branch-1', 30))->handle();
+    (new App\Jobs\PollPipelineStatusJob((string) $report->id, 'fix/branch-1', 30))->handle();
 
-    Event::assertDispatched(PipelineFailed::class, fn ($e): bool => $e->report->id === $report->id);
+    $failedJob = IntegrationJob::where('report_id', $report->id)
+        ->where('status', IntegrationJobStatus::Failed)
+        ->exists();
+
+    expect($failedJob)->toBeTrue();
 });
 
-test('github pipeline failure fires PipelineFailed event', function (): void {
-    Event::fake();
+test('github pipeline failure creates failed IntegrationJob', function (): void {
     Queue::fake();
 
     Http::fake([
-        'api.github.com/*' => Http::response([
+        'https://api.github.com/*' => Http::response([
             'workflow_runs' => [[
                 'status'     => 'completed',
                 'conclusion' => 'failure',
@@ -138,9 +145,13 @@ test('github pipeline failure fires PipelineFailed event', function (): void {
         ], 200),
     ]);
 
-    $report = makeReportWithGitHubIntegration();
+    $report = makeGitHubReport();
 
-    (new PollPipelineStatusJob((string) $report->id, 'fix/branch-1'))->handle();
+    (new App\Jobs\PollPipelineStatusJob((string) $report->id, 'fix/branch-1'))->handle();
 
-    Event::assertDispatched(PipelineFailed::class);
+    $failedJob = IntegrationJob::where('report_id', $report->id)
+        ->where('status', IntegrationJobStatus::Failed)
+        ->exists();
+
+    expect($failedJob)->toBeTrue();
 });
