@@ -32,7 +32,7 @@
         @if($this->reports->isNotEmpty())
             <div class="overflow-x-auto">
                 <table class="table-dark min-w-full">
-                    <thead>
+                    <thead class="table-head">
                         <tr>
                             <th class="w-14">#</th>
                             <th>Título</th>
@@ -54,7 +54,7 @@
                                     default => 'text-slate-400',
                                 };
                             @endphp
-                            <tr>
+                            <tr class="table-row">
                                 <td>
                                     @if($position <= 3)
                                         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/5 ring-1 ring-inset font-bold {{ $accent }}">{{ $position }}</span>
@@ -83,10 +83,13 @@
                                 </td>
                                 <td class="text-right">
                                     @if($report->status === \App\Enums\ReportStatus::PublishedForVoting)
-                                        <a href="{{ route('root.reports.show', $report) }}"
-                                           class="text-xs font-medium text-brand-300 transition hover:text-brand-200">
+                                        <x-secondary-button as="a" href="{{ route('root.reports.show', $report) }}">
+                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
                                             Ver revisão
-                                        </a>
+                                        </x-secondary-button>
                                     @else
                                         <span class="text-xs text-slate-500">—</span>
                                     @endif
@@ -104,10 +107,11 @@
             @endif
         @else
             <div class="flex flex-col items-center justify-center py-16 text-center">
-                <svg class="mb-3 h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <svg class="mb-4 h-14 w-14 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                 </svg>
-                <p class="font-medium text-slate-300">Nenhuma sugestão em votação no momento.</p>
+                <h3 class="font-semibold text-slate-200">Nenhuma sugestão em votação</h3>
+                <p class="mt-1 text-sm text-slate-500">Publique tickets aprovados para iniciar a votação.</p>
             </div>
         @endif
     </div>

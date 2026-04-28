@@ -42,10 +42,11 @@
     {{-- Grid de cards --}}
     @if ($this->reports->isEmpty())
         <div class="card flex flex-col items-center justify-center py-16 text-center">
-            <svg class="mb-3 h-10 w-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <svg class="mb-4 h-14 w-14 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
             </svg>
-            <p class="text-sm font-medium text-slate-300">Nenhuma sugestão disponível para votação no momento.</p>
+            <h3 class="font-semibold text-slate-200">Nenhuma sugestão disponível</h3>
+            <p class="mt-1 text-sm text-slate-500">Ainda não há sugestões publicadas para votação no momento.</p>
         </div>
     @else
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

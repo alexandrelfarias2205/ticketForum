@@ -55,7 +55,7 @@
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
             <table class="table-dark min-w-full">
-                <thead>
+                <thead class="table-head">
                     <tr>
                         <th>Título</th>
                         <th>Tipo</th>
@@ -67,7 +67,7 @@
                 </thead>
                 <tbody>
                     @forelse($this->reports as $report)
-                        <tr>
+                        <tr class="table-row">
                             <td>
                                 <p class="max-w-xs truncate font-medium text-white">{{ $report->title }}</p>
                                 @if($report->labels->isNotEmpty())
@@ -98,18 +98,21 @@
                                 {{ $report->created_at->format('d/m/Y') }}
                             </td>
                             <td class="text-right">
-                                <div class="flex items-center justify-end gap-3">
-                                    <a href="{{ route('app.reports.show', $report) }}"
-                                       wire:navigate
-                                       class="text-sm font-medium text-brand-300 transition hover:text-brand-200">
+                                <div class="flex items-center justify-end gap-2">
+                                    <x-secondary-button as="a" href="{{ route('app.reports.show', $report) }}" wire:navigate>
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
                                         Ver
-                                    </a>
+                                    </x-secondary-button>
                                     @if($report->status === \App\Enums\ReportStatus::PendingReview)
-                                        <a href="{{ route('app.reports.edit', $report) }}"
-                                           wire:navigate
-                                           class="text-sm font-medium text-slate-400 transition hover:text-white">
+                                        <x-secondary-button as="a" href="{{ route('app.reports.edit', $report) }}" wire:navigate>
+                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                            </svg>
                                             Editar
-                                        </a>
+                                        </x-secondary-button>
                                     @endif
                                 </div>
                             </td>
@@ -117,11 +120,19 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-6 py-16 text-center">
-                                <svg class="mx-auto mb-4 h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <svg class="mx-auto mb-4 h-14 w-14 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                 </svg>
-                                <p class="font-medium text-slate-300">Nenhum ticket encontrado</p>
+                                <h3 class="font-semibold text-slate-200">Nenhum ticket encontrado</h3>
                                 <p class="mt-1 text-sm text-slate-500">Tente ajustar os filtros ou crie um novo ticket.</p>
+                                <div class="mt-4">
+                                    <x-primary-button as="a" href="{{ route('app.reports.create') }}" wire:navigate>
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                        </svg>
+                                        Novo ticket
+                                    </x-primary-button>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
