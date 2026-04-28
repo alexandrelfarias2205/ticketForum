@@ -43,6 +43,9 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->name('root.')->group(f
 
     // Entregas (relatórios concluídos)
     Route::get('delivered', \App\Http\Controllers\Root\DeliveredController::class)->name('delivered.index');
+
+    // Agent activity dashboard
+    Route::get('agent', \App\Livewire\Root\Agent\AgentActivityDashboard::class)->name('agent.dashboard');
 });
 
 // Tenant routes (tenant_admin + tenant_user)

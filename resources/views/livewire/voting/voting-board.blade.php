@@ -6,13 +6,25 @@
     </div>
 
     {{-- Filtros --}}
-    <div class="mb-6 flex flex-col gap-3 sm:flex-row">
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <input
             wire:model.live.debounce.300ms="search"
             type="search"
             placeholder="Buscar por título…"
-            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            class="flex-1 min-w-48 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
+
+        @if ($this->products->isNotEmpty())
+        <select
+            wire:model.live="filterProductId"
+            class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        >
+            <option value="">Todos os produtos</option>
+            @foreach ($this->products as $product)
+                <option value="{{ $product->id }}">{{ $product->name }}</option>
+            @endforeach
+        </select>
+        @endif
 
         <select
             wire:model.live="filterType"
@@ -113,22 +125,34 @@
 
                     {{-- Rodapé: autor + botão de voto --}}
                     <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                        <div class="text-xs text-gray-400">
-                            Por {{ $report->author->name }}
-                            @if ($report->published_at)
-                                &bull; {{ $report->published_at->diffForHumans() }}
-                            @endif
+                        <div class="flex flex-col gap-1">
+                            <div class="text-xs text-gray-400">
+                                Por {{ $report->author->name }}
+                                @if ($report->published_at)
+                                    &bull; {{ $report->published_at->diffForHumans() }}
+                                @endif
+                            </div>
+                            {{-- Já votei badge --}}
+                            <span
+                                x-show="voted"
+                                class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700"
+                            >
+                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Já votei
+                            </span>
                         </div>
 
                         {{-- Vote button --}}
                         <button
-                            @click="toggle()"
-                            :disabled="loading"
+                            @click="!voted && toggle()"
+                            :disabled="loading || voted"
                             :class="voted
-                                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                ? 'bg-indigo-600 text-white cursor-not-allowed opacity-70'
                                 : 'bg-white text-gray-600 border border-gray-300 hover:border-indigo-400 hover:text-indigo-600'"
                             class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 disabled:opacity-60"
-                            :title="voted ? 'Remover voto' : 'Votar'"
+                            :title="voted ? 'Você já votou' : 'Votar'"
                         >
                             {{-- Triangle up --}}
                             <svg class="h-4 w-4" viewBox="0 0 20 20" :fill="voted ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.5">

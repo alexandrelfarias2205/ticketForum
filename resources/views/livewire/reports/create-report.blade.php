@@ -7,6 +7,28 @@
 
     <form wire:submit="save" class="space-y-6">
 
+        {{-- Produto --}}
+        @if ($this->products->isNotEmpty())
+        <div>
+            <label for="productId" class="text-sm font-semibold text-gray-900">
+                Produto <span class="text-red-500">*</span>
+            </label>
+            <select
+                id="productId"
+                wire:model="productId"
+                class="mt-1.5 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-sm text-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 @error('productId') border-red-400 @enderror"
+            >
+                <option value="">Selecione o produto...</option>
+                @foreach ($this->products as $product)
+                    <option value="{{ $product->id }}">{{ $product->name }}</option>
+                @endforeach
+            </select>
+            @error('productId')
+                <span class="text-red-600 text-xs mt-1">{{ $message }}</span>
+            @enderror
+        </div>
+        @endif
+
         {{-- Tipo do Relatório --}}
         <div>
             <fieldset>

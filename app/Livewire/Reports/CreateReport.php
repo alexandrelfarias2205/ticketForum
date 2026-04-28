@@ -4,12 +4,15 @@ namespace App\Livewire\Reports;
 
 use App\Actions\Reports\CreateReportAction;
 use App\Actions\Reports\StoreLinkAttachmentAction;
+use App\Models\Product;
 use App\Models\Report;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-class CreateReport extends Component
+final class CreateReport extends Component
 {
     #[Validate('required|in:bug,improvement,feature_request')]
     public string $type = '';
@@ -24,6 +27,16 @@ class CreateReport extends Component
     public array $links = [];
 
     public string $newLink = '';
+
+    public ?string $productId = null;
+
+    #[Computed]
+    public function products(): Collection
+    {
+        return Product::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+    }
 
     public function addLink(): void
     {
@@ -47,9 +60,14 @@ class CreateReport extends Component
 
         $this->validate();
 
+        if ($this->products->isNotEmpty() && blank($this->productId)) {
+            $this->addError('productId', 'Selecione o produto para este ticket');
+            return;
+        }
+
         $report = $action->handle(
             auth()->user(),
-            $this->only(['type', 'title', 'description'])
+            $this->only(['type', 'title', 'description']) + ['product_id' => $this->productId]
         );
 
         foreach ($this->links as $url) {
