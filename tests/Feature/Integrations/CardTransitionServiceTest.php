@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
 use App\Enums\ExternalPlatform;
+use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use App\Services\Integrations\CardTransitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,21 +14,24 @@ uses(RefreshDatabase::class);
 
 function makeReportWithPlatform(ExternalPlatform $platform, array $config): array
 {
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
     $report = Report::factory()->approved()->create([
         'tenant_id'         => $tenant->id,
         'author_id'         => $author->id,
+        'product_id'        => $product->id,
         'external_platform' => $platform,
         'external_issue_id' => '42',
     ]);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => $platform->value,
-        'config'    => encrypt($config),
-        'is_active' => true,
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => $platform,
+        'config'     => encrypt($config),
+        'is_active'  => true,
     ]);
 
     return [$report, $tenant];

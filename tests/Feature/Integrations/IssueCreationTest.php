@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
+use App\Enums\ExternalPlatform;
 use App\Jobs\CreateGitHubIssueJob;
 use App\Jobs\CreateJiraIssueJob;
+use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -14,25 +16,28 @@ uses(RefreshDatabase::class);
 test('root can dispatch jira issue creation', function (): void {
     Queue::fake();
 
-    $root   = User::factory()->root()->create();
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $root    = User::factory()->root()->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'jira',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::Jira,
+        'config'     => encrypt([
             'email'       => 'user@example.com',
             'api_token'   => 'token',
             'base_url'    => 'https://example.atlassian.net',
             'project_key' => 'PROJ',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     $report = Report::factory()->approved()->create([
-        'tenant_id' => $tenant->id,
-        'author_id' => $author->id,
+        'tenant_id'  => $tenant->id,
+        'author_id'  => $author->id,
+        'product_id' => $product->id,
     ]);
 
     $this->actingAs($root)
@@ -45,24 +50,27 @@ test('root can dispatch jira issue creation', function (): void {
 test('root can dispatch github issue creation', function (): void {
     Queue::fake();
 
-    $root   = User::factory()->root()->create();
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $root    = User::factory()->root()->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'github',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::GitHub,
+        'config'     => encrypt([
             'token' => 'ghp_secret',
             'owner' => 'acme',
             'repo'  => 'my-repo',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     $report = Report::factory()->approved()->create([
-        'tenant_id' => $tenant->id,
-        'author_id' => $author->id,
+        'tenant_id'  => $tenant->id,
+        'author_id'  => $author->id,
+        'product_id' => $product->id,
     ]);
 
     $this->actingAs($root)
@@ -75,26 +83,29 @@ test('root can dispatch github issue creation', function (): void {
 test('dispatch is idempotent when report already has external_issue_id', function (): void {
     Queue::fake();
 
-    $root   = User::factory()->root()->create();
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $root    = User::factory()->root()->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'jira',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::Jira,
+        'config'     => encrypt([
             'email'       => 'user@example.com',
             'api_token'   => 'token',
             'base_url'    => 'https://example.atlassian.net',
             'project_key' => 'PROJ',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     $report = Report::factory()->approved()->create([
-        'tenant_id'         => $tenant->id,
-        'author_id'         => $author->id,
-        'external_issue_id' => 'PROJ-42',
+        'tenant_id'          => $tenant->id,
+        'author_id'          => $author->id,
+        'product_id'         => $product->id,
+        'external_issue_id'  => 'PROJ-42',
         'external_issue_url' => 'https://example.atlassian.net/browse/PROJ-42',
     ]);
 

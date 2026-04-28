@@ -7,9 +7,9 @@ use App\Enums\ReportType;
 use App\Livewire\Tenant\Dashboard\TenantDashboard;
 use App\Models\IntegrationJob;
 use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -217,7 +217,8 @@ test('voting twice on same report fails gracefully', function (): void {
 test('byProduct returns empty when tenant has only one product', function (): void {
     $tenant  = Tenant::factory()->create();
     $user    = User::factory()->tenantUser($tenant)->create();
-    $product = Product::factory()->forTenant($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
     Report::factory()->count(3)->create([
         'tenant_id'  => $tenant->id,
@@ -235,8 +236,9 @@ test('byProduct returns empty when tenant has only one product', function (): vo
 test('byProduct returns aggregated rows when tenant has multiple products', function (): void {
     $tenant   = Tenant::factory()->create();
     $user     = User::factory()->tenantUser($tenant)->create();
-    $productA = Product::factory()->forTenant($tenant)->create(['name' => 'Alpha']);
-    $productB = Product::factory()->forTenant($tenant)->create(['name' => 'Beta']);
+    $productA = Product::factory()->create(['name' => 'Alpha']);
+    $productB = Product::factory()->create(['name' => 'Beta']);
+    $tenant->products()->attach([$productA->id, $productB->id]);
 
     Report::factory()->create([
         'tenant_id'  => $tenant->id,
@@ -264,15 +266,17 @@ test('byProduct returns aggregated rows when tenant has multiple products', func
 });
 
 test('integrations health is empty for tenant_user', function (): void {
-    $tenant = Tenant::factory()->create();
-    $user   = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $user    = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
-    TenantIntegration::create([
-        'id'        => Str::uuid()->toString(),
-        'tenant_id' => $tenant->id,
-        'platform'  => ExternalPlatform::Jira,
-        'config'    => 'irrelevant',
-        'is_active' => true,
+    ProductIntegration::create([
+        'id'         => Str::uuid()->toString(),
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::Jira,
+        'config'     => 'irrelevant',
+        'is_active'  => true,
     ]);
 
     $component = Livewire::actingAs($user)
@@ -284,16 +288,18 @@ test('integrations health is empty for tenant_user', function (): void {
 });
 
 test('integrations health is populated for tenant_admin', function (): void {
-    $tenant = Tenant::factory()->create();
-    $admin  = User::factory()->tenantAdmin($tenant)->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $admin   = User::factory()->tenantAdmin($tenant)->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
-    TenantIntegration::create([
-        'id'        => Str::uuid()->toString(),
-        'tenant_id' => $tenant->id,
-        'platform'  => ExternalPlatform::Jira,
-        'config'    => 'irrelevant',
-        'is_active' => true,
+    ProductIntegration::create([
+        'id'         => Str::uuid()->toString(),
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::Jira,
+        'config'     => 'irrelevant',
+        'is_active'  => true,
     ]);
 
     $report = Report::factory()->create([

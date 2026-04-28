@@ -3,6 +3,10 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureTenantAccess;
+use App\Livewire\Root\Products\CreateProduct;
+use App\Livewire\Root\Products\EditProduct;
+use App\Livewire\Root\Products\ProductIntegrations;
+use App\Livewire\Root\Products\ProductList;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,17 +27,18 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->name('root.')->group(f
 
     Route::resource('labels', \App\Http\Controllers\Root\LabelController::class);
 
+    // Global products (root-only)
+    Route::get('products', ProductList::class)->name('products.index');
+    Route::get('products/create', CreateProduct::class)->name('products.create');
+    Route::get('products/{product}/edit', EditProduct::class)->name('products.edit');
+    Route::get('products/{product}/integrations', ProductIntegrations::class)->name('products.integrations');
+
     // Root — review queue
     Route::get('reports', [\App\Http\Controllers\Root\ReportReviewController::class, 'index'])->name('reports.index');
     Route::get('reports/{report}', [\App\Http\Controllers\Root\ReportReviewController::class, 'show'])->name('reports.show');
     Route::post('reports/{report}/approve', [\App\Http\Controllers\Root\ReportReviewController::class, 'approve'])->name('reports.approve');
     Route::post('reports/{report}/reject', [\App\Http\Controllers\Root\ReportReviewController::class, 'reject'])->name('reports.reject');
     Route::post('reports/{report}/publish', [\App\Http\Controllers\Root\ReportReviewController::class, 'publish'])->name('reports.publish');
-
-    // Integration configuration per tenant
-    Route::get('tenants/{tenant}/integration', [\App\Http\Controllers\Root\IntegrationController::class, 'edit'])->name('tenants.integration.edit');
-    Route::post('tenants/{tenant}/integration/jira', [\App\Http\Controllers\Root\IntegrationController::class, 'storeJira'])->name('tenants.integration.jira');
-    Route::post('tenants/{tenant}/integration/github', [\App\Http\Controllers\Root\IntegrationController::class, 'storeGitHub'])->name('tenants.integration.github');
 
     // Create issue from approved/published report
     Route::post('reports/{report}/create-issue', [\App\Http\Controllers\Root\ReportReviewController::class, 'createIssue'])->name('reports.create-issue');
@@ -69,14 +74,6 @@ Route::middleware(['auth', 'tenant'])->prefix('app')->name('app.')->group(functi
     Route::post('reports/{report}/links', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'storeLink'])->name('reports.links.store')->middleware('throttle:attachments');
     Route::delete('reports/attachments/{attachment}', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'destroy'])->name('reports.attachments.destroy');
     Route::get('reports/attachments/{attachment}/download', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'download'])->name('reports.attachments.download');
-
-    // Products
-    Route::get('products', \App\Livewire\Tenant\Products\ProductList::class)->name('products.index');
-    Route::get('products/create', \App\Livewire\Tenant\Products\CreateProduct::class)->name('products.create');
-    Route::get('products/{product}/edit', \App\Livewire\Tenant\Products\EditProduct::class)->name('products.edit');
-
-    // Settings
-    Route::get('settings/integrations', \App\Livewire\Tenant\Settings\IntegrationSettings::class)->name('settings.integrations');
 
     // Voting board
     Route::get('voting', \App\Http\Controllers\Tenant\VotingController::class)->name('voting.index');

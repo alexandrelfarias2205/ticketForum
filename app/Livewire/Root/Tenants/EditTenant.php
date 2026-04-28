@@ -3,8 +3,11 @@
 namespace App\Livewire\Root\Tenants;
 
 use App\Actions\Tenants\UpdateTenantAction;
+use App\Models\Product;
 use App\Models\Tenant;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class EditTenant extends Component
@@ -15,6 +18,9 @@ class EditTenant extends Component
     public string $plan = 'free';
     public bool $is_active = true;
 
+    /** @var array<int, string> */
+    public array $selectedProducts = [];
+
     public function mount(Tenant $tenant): void
     {
         $this->authorize('update', $tenant);
@@ -23,14 +29,29 @@ class EditTenant extends Component
         $this->name      = $tenant->name;
         $this->plan      = $tenant->plan->value;
         $this->is_active = $tenant->is_active;
+
+        $this->selectedProducts = $tenant->products()
+            ->pluck('products.id')
+            ->map(fn ($id): string => (string) $id)
+            ->all();
+    }
+
+    #[Computed]
+    public function allProducts(): Collection
+    {
+        return Product::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'is_active']);
     }
 
     protected function rules(): array
     {
         return [
-            'name'      => ['required', 'string', 'max:255'],
-            'plan'      => ['required', 'string', 'in:free,pro,enterprise'],
-            'is_active' => ['boolean'],
+            'name'                => ['required', 'string', 'max:255'],
+            'plan'                => ['required', 'string', 'in:free,pro,enterprise'],
+            'is_active'           => ['boolean'],
+            'selectedProducts'    => ['array'],
+            'selectedProducts.*'  => ['string', 'uuid'],
         ];
     }
 
@@ -55,6 +76,8 @@ class EditTenant extends Component
             'plan'      => $this->plan,
             'is_active' => $this->is_active,
         ]);
+
+        $this->tenant->products()->sync($this->selectedProducts);
 
         $this->dispatch('notify', message: 'Empresa atualizada com sucesso.', type: 'success');
     }

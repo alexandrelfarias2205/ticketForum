@@ -1,11 +1,13 @@
 <?php declare(strict_types=1);
 
 use App\Actions\Integrations\DispatchIssueCreationAction;
+use App\Enums\ExternalPlatform;
 use App\Jobs\CheckDuplicateIssueJob;
 use App\Jobs\EnrichExistingIssueJob;
+use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use App\Services\AI\IssueSimilarityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,27 +27,30 @@ beforeEach(function (): void {
 test('duplicate is marked when platform returns matching issues and api says duplicate', function (): void {
     Queue::fake();
 
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
     $report = Report::factory()->bug()->approved()->create([
-        'tenant_id' => $tenant->id,
-        'author_id' => $author->id,
+        'tenant_id'  => $tenant->id,
+        'author_id'  => $author->id,
+        'product_id' => $product->id,
     ]);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'gitlab',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::GitLab,
+        'config'     => encrypt([
             'token'      => 'glpat-secret',
             'project_id' => '123',
             'base_url'   => 'https://gitlab.com',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     Http::fake([
-        'https://gitlab.com/*'       => Http::response([
+        'https://gitlab.com/*'        => Http::response([
             ['iid' => 5, 'title' => $report->title, 'description' => $report->description],
         ], 200),
         'https://api.anthropic.com/*' => Http::response([
@@ -77,11 +82,11 @@ test('no duplicate proceeds without marking report as duplicate', function (): v
         'author_id' => $author->id,
     ]);
 
-    // No TenantIntegration → existingIssues=[] → findSimilar short-circuits, returns not duplicate
+    // No ProductIntegration → existingIssues=[] → findSimilar short-circuits, returns not duplicate
     $job = new CheckDuplicateIssueJob((string) $report->id);
 
-    // DispatchIssueCreationAction will throw since no integration — but command catches it
-    // We catch it here to test the duplicate-check path only
+    // DispatchIssueCreationAction will throw since no integration — but we catch it here
+    // so the duplicate-check path can be tested in isolation.
     try {
         $job->handle(app(IssueSimilarityService::class), app(DispatchIssueCreationAction::class));
     } catch (Throwable) {

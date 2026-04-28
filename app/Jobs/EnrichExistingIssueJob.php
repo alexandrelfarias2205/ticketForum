@@ -7,7 +7,6 @@ use App\Models\AgentLog;
 use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Scopes\TenantScope;
-use App\Models\TenantIntegration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -84,21 +83,15 @@ final class EnrichExistingIssueJob implements ShouldQueue
 
     private function guessPlatform(Report $report): ?ExternalPlatform
     {
-        if ($report->product_id !== null) {
-            $integration = ProductIntegration::where('product_id', $report->product_id)
-                ->where('is_active', true)
-                ->first();
-
-            if ($integration !== null) {
-                return $integration->platform;
-            }
+        if ($report->product_id === null) {
+            return null;
         }
 
-        $tenantIntegration = TenantIntegration::withoutGlobalScopes()
-            ->where('tenant_id', $report->tenant_id)
+        $integration = ProductIntegration::where('product_id', $report->product_id)
+            ->where('is_active', true)
             ->first();
 
-        return $tenantIntegration?->platform;
+        return $integration?->platform;
     }
 
     /**
@@ -106,22 +99,16 @@ final class EnrichExistingIssueJob implements ShouldQueue
      */
     private function resolveConfig(Report $report, ExternalPlatform $platform): ?array
     {
-        if ($report->product_id !== null) {
-            $integration = ProductIntegration::where('product_id', $report->product_id)
-                ->where('platform', $platform->value)
-                ->where('is_active', true)
-                ->first();
-
-            if ($integration !== null) {
-                return $integration->decryptedConfig();
-            }
+        if ($report->product_id === null) {
+            return null;
         }
 
-        $tenantIntegration = TenantIntegration::withoutGlobalScopes()
-            ->where('tenant_id', $report->tenant_id)
+        $integration = ProductIntegration::where('product_id', $report->product_id)
+            ->where('platform', $platform->value)
+            ->where('is_active', true)
             ->first();
 
-        return $tenantIntegration ? decrypt($tenantIntegration->config) : null;
+        return $integration?->decryptedConfig();
     }
 
     /**

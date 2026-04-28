@@ -8,9 +8,10 @@ use App\Enums\ReportStatus;
 use App\Enums\ReportType;
 use App\Models\IntegrationJob;
 use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Scopes\TenantScope;
-use App\Models\TenantIntegration;
+use App\Models\Tenant;
 use App\Models\Vote;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon as SupportCarbon;
@@ -251,8 +252,8 @@ final class DashboardRepository
             $this->cacheKey($tenantId, 'reports_by_product'),
             self::CACHE_TTL_SECONDS,
             function () use ($tenantId): array {
-                $productCount = Product::query()
-                    ->withoutGlobalScope(TenantScope::class)
+                // Products are global; the tenant's "own" products are those joined via tenant_product.
+                $productCount = DB::table('tenant_product')
                     ->where('tenant_id', $tenantId)
                     ->count();
 
@@ -261,11 +262,13 @@ final class DashboardRepository
                 }
 
                 $rows = DB::table('products')
-                    ->leftJoin('reports', function ($join): void {
+                    ->join('tenant_product', 'tenant_product.product_id', '=', 'products.id')
+                    ->leftJoin('reports', function ($join) use ($tenantId): void {
                         $join->on('reports.product_id', '=', 'products.id')
+                            ->where('reports.tenant_id', '=', $tenantId)
                             ->whereNull('reports.deleted_at');
                     })
-                    ->where('products.tenant_id', $tenantId)
+                    ->where('tenant_product.tenant_id', $tenantId)
                     ->groupBy('products.id', 'products.name')
                     ->orderBy('products.name')
                     ->get([
@@ -298,9 +301,26 @@ final class DashboardRepository
             $this->cacheKey($tenantId, 'integrations_health'),
             self::CACHE_TTL_SECONDS,
             function () use ($tenantId): array {
-                $integrations = TenantIntegration::query()
-                    ->withoutGlobalScope(TenantScope::class)
-                    ->where('tenant_id', $tenantId)
+                // Integrations are configured per product by root.
+                // For a given tenant, surface the integrations of all products
+                // assigned to that tenant via the tenant_product pivot.
+                $tenant = Tenant::query()
+                    ->whereKey($tenantId)
+                    ->with(['products:id'])
+                    ->first();
+
+                if ($tenant === null) {
+                    return [];
+                }
+
+                $productIds = $tenant->products->pluck('id')->all();
+
+                if ($productIds === []) {
+                    return [];
+                }
+
+                $integrations = ProductIntegration::query()
+                    ->whereIn('product_id', $productIds)
                     ->get(['platform', 'is_active']);
 
                 if ($integrations->isEmpty()) {
@@ -309,6 +329,7 @@ final class DashboardRepository
 
                 $platforms = $integrations->pluck('platform')
                     ->map(static fn (ExternalPlatform $p): string => $p->value)
+                    ->unique()
                     ->all();
 
                 // Latest job per platform (one query, scoped via reports)
@@ -337,7 +358,8 @@ final class DashboardRepository
                     ->pluck('failure_count', 'integration_jobs.platform');
 
                 return $integrations
-                    ->map(function (TenantIntegration $integration) use ($latestJobs, $failuresByPlatform): array {
+                    ->unique(fn (ProductIntegration $integration): string => $integration->platform->value)
+                    ->map(function (ProductIntegration $integration) use ($latestJobs, $failuresByPlatform): array {
                         $platformValue = $integration->platform->value;
                         $latest        = $latestJobs->get($platformValue);
                         $lastJobStatus = $latest !== null

@@ -125,6 +125,14 @@
                         Usuários
                     </a>
 
+                    <p class="px-3 pb-1 pt-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Produtos</p>
+
+                    <a href="{{ route('root.products.index') }}"
+                       @class([ 'nav-link', 'nav-link-active' => request()->routeIs('root.products.*') ])>
+                        <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>
+                        Todos os produtos
+                    </a>
+
                     <p class="px-3 pb-1 pt-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Operação</p>
 
                     <a href="{{ route('root.reports.index') }}"

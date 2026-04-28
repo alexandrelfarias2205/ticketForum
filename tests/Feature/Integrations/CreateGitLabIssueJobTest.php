@@ -4,9 +4,10 @@ use App\Enums\ExternalPlatform;
 use App\Enums\IntegrationJobStatus;
 use App\Jobs\CreateGitLabIssueJob;
 use App\Models\IntegrationJob;
+use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -15,23 +16,26 @@ uses(RefreshDatabase::class);
 
 function makeGitLabSetup(): array
 {
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
     $report = Report::factory()->approved()->create([
-        'tenant_id' => $tenant->id,
-        'author_id' => $author->id,
+        'tenant_id'  => $tenant->id,
+        'author_id'  => $author->id,
+        'product_id' => $product->id,
     ]);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'gitlab',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::GitLab,
+        'config'     => encrypt([
             'token'      => 'glpat-secret',
             'project_id' => '123',
             'base_url'   => 'https://gitlab.com',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     $integrationJob = IntegrationJob::create([

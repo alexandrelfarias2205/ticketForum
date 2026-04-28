@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
+use App\Enums\ExternalPlatform;
 use App\Enums\IntegrationJobStatus;
 use App\Enums\ReportStatus;
 use App\Jobs\CreateJiraIssueJob;
 use App\Models\IntegrationJob;
+use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -15,24 +17,27 @@ uses(Tests\TestCase::class, RefreshDatabase::class);
 
 function makeJiraSetup(): array
 {
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
     $report = Report::factory()->approved()->create([
-        'tenant_id' => $tenant->id,
-        'author_id' => $author->id,
+        'tenant_id'  => $tenant->id,
+        'author_id'  => $author->id,
+        'product_id' => $product->id,
     ]);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'jira',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::Jira,
+        'config'     => encrypt([
             'email'       => 'user@example.com',
             'api_token'   => 'api-token',
             'base_url'    => 'https://example.atlassian.net',
             'project_key' => 'PROJ',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     $integrationJob = IntegrationJob::create([

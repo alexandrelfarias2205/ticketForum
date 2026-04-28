@@ -10,7 +10,6 @@ use App\Jobs\CreateJiraIssueJob;
 use App\Models\IntegrationJob;
 use App\Models\ProductIntegration;
 use App\Models\Report;
-use App\Models\TenantIntegration;
 use RuntimeException;
 
 final class DispatchIssueCreationAction
@@ -36,29 +35,23 @@ final class DispatchIssueCreationAction
     }
 
     /**
-     * Prefer ProductIntegration when the report belongs to a product; fall back to TenantIntegration.
+     * Resolve the platform from the product's active integration.
+     * Integrations are now configured per product (by root), not per tenant.
      */
     private function resolvePlatform(Report $report): ExternalPlatform
     {
-        if ($report->product_id !== null) {
-            $integration = ProductIntegration::where('product_id', $report->product_id)
-                ->where('is_active', true)
-                ->first();
-
-            if ($integration !== null) {
-                return $integration->platform;
-            }
+        if ($report->product_id === null) {
+            throw new RuntimeException('Report has no product — cannot resolve integration.');
         }
 
-        $tenantIntegration = TenantIntegration::withoutGlobalScopes()
-            ->where('tenant_id', $report->tenant_id)
+        $integration = ProductIntegration::where('product_id', $report->product_id)
             ->where('is_active', true)
             ->first();
 
-        if ($tenantIntegration === null) {
-            throw new RuntimeException('No active integration configured for report.');
+        if ($integration === null) {
+            throw new RuntimeException('No active integration configured for this product.');
         }
 
-        return $tenantIntegration->platform;
+        return $integration->platform;
     }
 }

@@ -8,32 +8,47 @@ use App\Models\User;
 
 final class ProductPolicy
 {
+    /**
+     * Anyone authenticated may list products.
+     */
     public function viewAny(User $user): bool
     {
-        return $user->role === UserRole::TenantAdmin
+        return $user->role === UserRole::Root
+            || $user->role === UserRole::TenantAdmin
             || $user->role === UserRole::TenantUser;
     }
 
+    /**
+     * Anyone authenticated may view a product.
+     */
     public function view(User $user, Product $product): bool
     {
-        return ($user->role === UserRole::TenantAdmin || $user->role === UserRole::TenantUser)
-            && $user->tenant_id === $product->tenant_id;
+        return $user->role === UserRole::Root
+            || $user->role === UserRole::TenantAdmin
+            || $user->role === UserRole::TenantUser;
     }
 
+    /**
+     * Only root may create products.
+     */
     public function create(User $user): bool
     {
-        return $user->role === UserRole::TenantAdmin;
+        return $user->role === UserRole::Root;
     }
 
+    /**
+     * Only root may update products.
+     */
     public function update(User $user, Product $product): bool
     {
-        return $user->role === UserRole::TenantAdmin
-            && $user->tenant_id === $product->tenant_id;
+        return $user->role === UserRole::Root;
     }
 
+    /**
+     * Only root may delete products.
+     */
     public function delete(User $user, Product $product): bool
     {
-        return $user->role === UserRole::TenantAdmin
-            && $user->tenant_id === $product->tenant_id;
+        return $user->role === UserRole::Root;
     }
 }

@@ -8,7 +8,6 @@ use App\Models\IntegrationJob;
 use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Scopes\TenantScope;
-use App\Models\TenantIntegration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -89,29 +88,22 @@ final class CreateGitLabIssueJob implements ShouldQueue
     }
 
     /**
-     * Look up the config for the report. Prefer ProductIntegration when the report
-     * is product-scoped; fall back to legacy TenantIntegration otherwise.
+     * Look up the GitLab config for the product owning this report.
      *
      * @return array<string, mixed>
      */
     private function resolveConfig(Report $report): array
     {
-        if ($report->product_id !== null) {
-            $integration = ProductIntegration::where('product_id', $report->product_id)
-                ->where('platform', ExternalPlatform::GitLab->value)
-                ->where('is_active', true)
-                ->first();
-
-            if ($integration !== null) {
-                return $integration->decryptedConfig();
-            }
+        if ($report->product_id === null) {
+            throw new \RuntimeException('Report has no product — cannot resolve GitLab integration.');
         }
 
-        $tenantIntegration = TenantIntegration::withoutGlobalScopes()
-            ->where('tenant_id', $report->tenant_id)
+        $integration = ProductIntegration::where('product_id', $report->product_id)
+            ->where('platform', ExternalPlatform::GitLab->value)
+            ->where('is_active', true)
             ->firstOrFail();
 
-        return decrypt($tenantIntegration->config);
+        return $integration->decryptedConfig();
     }
 
     public function failed(Throwable $exception): void

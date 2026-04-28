@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Livewire\Tenant\Products;
+namespace App\Livewire\Root\Products;
 
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
@@ -19,17 +19,14 @@ final class ProductList extends Component
     public function products(): Collection
     {
         return Product::query()
-            ->where('tenant_id', auth()->user()->tenant_id)
-            ->withCount('reports')
+            ->withCount(['reports', 'tenants'])
             ->orderBy('name')
             ->get();
     }
 
     public function toggleActive(string $id): void
     {
-        $this->authorize('update', Product::class);
-
-        $product = Product::where('tenant_id', auth()->user()->tenant_id)->findOrFail($id);
+        $product = Product::findOrFail($id);
 
         $this->authorize('update', $product);
 
@@ -37,22 +34,18 @@ final class ProductList extends Component
 
         unset($this->products);
 
-        $status = $product->is_active ? 'ativado' : 'desativado';
-        session()->flash('success', "Produto {$status} com sucesso.");
+        $status = $product->is_active ? 'ativado' : 'arquivado';
+        $this->dispatch('notify', type: 'success', message: "Produto {$status} com sucesso.");
     }
 
     public function delete(string $id): void
     {
-        $this->authorize('delete', Product::class);
-
-        $product = Product::where('tenant_id', auth()->user()->tenant_id)
-            ->withCount('reports')
-            ->findOrFail($id);
+        $product = Product::withCount('reports')->findOrFail($id);
 
         $this->authorize('delete', $product);
 
         if ($product->reports_count > 0) {
-            session()->flash('error', 'Não é possível excluir um produto com relatórios vinculados.');
+            $this->dispatch('notify', type: 'error', message: 'Não é possível excluir um produto com relatórios vinculados.');
             return;
         }
 
@@ -60,11 +53,11 @@ final class ProductList extends Component
 
         unset($this->products);
 
-        session()->flash('success', 'Produto excluído com sucesso.');
+        $this->dispatch('notify', type: 'success', message: 'Produto excluído com sucesso.');
     }
 
     public function render(): View
     {
-        return view('livewire.tenant.products.product-list');
+        return view('livewire.root.products.product-list')->layout('components.layouts.root');
     }
 }

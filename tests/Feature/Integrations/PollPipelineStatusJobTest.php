@@ -2,16 +2,14 @@
 
 use App\Enums\ExternalPlatform;
 use App\Enums\IntegrationJobStatus;
-use App\Events\PipelineFailed;
-use App\Events\PipelineSucceeded;
 use App\Models\AgentLog;
 use App\Models\IntegrationJob;
+use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 
@@ -19,25 +17,28 @@ uses(RefreshDatabase::class);
 
 function makeGitHubReport(): Report
 {
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
     $report = Report::factory()->approved()->create([
         'tenant_id'         => $tenant->id,
         'author_id'         => $author->id,
+        'product_id'        => $product->id,
         'external_platform' => ExternalPlatform::GitHub,
         'external_issue_id' => '10',
     ]);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'github',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::GitHub,
+        'config'     => encrypt([
             'token' => 'ghp_secret',
             'owner' => 'acme',
             'repo'  => 'my-repo',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     return $report;
@@ -45,25 +46,28 @@ function makeGitHubReport(): Report
 
 function makeGitLabReport(): Report
 {
-    $tenant = Tenant::factory()->create();
-    $author = User::factory()->tenantUser($tenant)->create();
+    $tenant  = Tenant::factory()->create();
+    $author  = User::factory()->tenantUser($tenant)->create();
+    $product = Product::factory()->create();
+    $tenant->products()->attach($product);
 
     $report = Report::factory()->approved()->create([
         'tenant_id'         => $tenant->id,
         'author_id'         => $author->id,
+        'product_id'        => $product->id,
         'external_platform' => ExternalPlatform::GitLab,
         'external_issue_id' => '7',
     ]);
 
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $tenant->id,
-        'platform'  => 'gitlab',
-        'config'    => encrypt([
+    ProductIntegration::create([
+        'product_id' => $product->id,
+        'platform'   => ExternalPlatform::GitLab,
+        'config'     => encrypt([
             'token'      => 'glpat-secret',
             'project_id' => '123',
             'base_url'   => 'https://gitlab.com',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     return $report;
