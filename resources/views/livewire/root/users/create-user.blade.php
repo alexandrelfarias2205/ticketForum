@@ -1,136 +1,77 @@
 <div class="mx-auto max-w-2xl">
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Novo Usuário</h1>
-        <p class="mt-1 text-sm text-gray-500">Preencha os dados para cadastrar um novo usuário.</p>
+        <h1 class="page-title">Novo usuário</h1>
+        <p class="page-subtitle">Preencha os dados para cadastrar um novo usuário.</p>
     </div>
 
-    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <form wire:submit="save" class="space-y-6">
+    <form wire:submit="save" class="card space-y-6">
 
-            {{-- Nome --}}
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">
-                    Nome <span class="text-red-500">*</span>
-                </label>
-                <input
-                    wire:model="name"
-                    id="name"
-                    type="text"
-                    autocomplete="name"
-                    placeholder="Nome completo"
-                    class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 @error('name') border-red-500 @enderror"
-                />
-                @error('name')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+        <div>
+            <label for="name" class="label-dark">Nome <span class="text-danger-400">*</span></label>
+            <input wire:model="name" id="name" type="text" autocomplete="name"
+                   placeholder="Nome completo"
+                   class="input-dark mt-1.5 @error('name') input-dark-error @enderror" />
+            @error('name') <p class="error-text">{{ $message }}</p> @enderror
+        </div>
 
-            {{-- E-mail --}}
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">
-                    E-mail <span class="text-red-500">*</span>
-                </label>
-                <input
-                    wire:model="email"
-                    id="email"
-                    type="email"
-                    autocomplete="email"
-                    placeholder="usuario@exemplo.com"
-                    class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 @error('email') border-red-500 @enderror"
-                />
-                @error('email')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+        <div>
+            <label for="email" class="label-dark">E-mail <span class="text-danger-400">*</span></label>
+            <input wire:model="email" id="email" type="email" autocomplete="email"
+                   placeholder="usuario@exemplo.com"
+                   class="input-dark mt-1.5 @error('email') input-dark-error @enderror" />
+            @error('email') <p class="error-text">{{ $message }}</p> @enderror
+        </div>
 
-            {{-- Papel --}}
-            <div>
-                <label for="role" class="block text-sm font-medium text-gray-700">
-                    Papel <span class="text-red-500">*</span>
-                </label>
-                <select
-                    wire:model.live="role"
-                    id="role"
-                    class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 @error('role') border-red-500 @enderror"
-                >
-                    <option value="tenant_user">Usuário</option>
-                    <option value="tenant_admin">Administrador</option>
-                    <option value="root">Administrador Root</option>
-                </select>
-                @error('role')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+        <div>
+            <label for="role" class="label-dark">Papel <span class="text-danger-400">*</span></label>
+            <select wire:model.live="role" id="role"
+                    class="input-dark mt-1.5 @error('role') input-dark-error @enderror">
+                <option value="tenant_user">Usuário</option>
+                <option value="tenant_admin">Administrador</option>
+                <option value="root">Administrador Root</option>
+            </select>
+            @error('role') <p class="error-text">{{ $message }}</p> @enderror
+        </div>
 
-            {{-- Empresa (only shown when role != root) --}}
-            @if($role !== 'root')
+        @if($role !== 'root')
             <div>
-                <label for="tenant_id" class="block text-sm font-medium text-gray-700">
-                    Empresa <span class="text-red-500">*</span>
-                </label>
-                <select
-                    wire:model="tenant_id"
-                    id="tenant_id"
-                    class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 @error('tenant_id') border-red-500 @enderror"
-                >
+                <label for="tenant_id" class="label-dark">Empresa <span class="text-danger-400">*</span></label>
+                <select wire:model="tenant_id" id="tenant_id"
+                        class="input-dark mt-1.5 @error('tenant_id') input-dark-error @enderror">
                     <option value="">Selecione uma empresa…</option>
                     @foreach($this->tenants as $tenant)
                         <option value="{{ $tenant->id }}">{{ $tenant->name }}</option>
                     @endforeach
                 </select>
-                @error('tenant_id')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
+                @error('tenant_id') <p class="error-text">{{ $message }}</p> @enderror
             </div>
-            @endif
+        @endif
 
-            {{-- Senha --}}
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">
-                    Senha <span class="text-red-500">*</span>
-                </label>
-                <input
-                    wire:model="password"
-                    id="password"
-                    type="password"
-                    autocomplete="new-password"
-                    placeholder="Mínimo 12 caracteres"
-                    class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 @error('password') border-red-500 @enderror"
-                />
-                @error('password')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+        <div>
+            <label for="password" class="label-dark">Senha <span class="text-danger-400">*</span></label>
+            <input wire:model="password" id="password" type="password" autocomplete="new-password"
+                   placeholder="Mínimo 12 caracteres"
+                   class="input-dark mt-1.5 @error('password') input-dark-error @enderror" />
+            @error('password') <p class="error-text">{{ $message }}</p> @enderror
+        </div>
 
-            {{-- Confirmar senha --}}
-            <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">
-                    Confirmar Senha <span class="text-red-500">*</span>
-                </label>
-                <input
-                    wire:model="password_confirmation"
-                    id="password_confirmation"
-                    type="password"
-                    autocomplete="new-password"
-                    placeholder="Repita a senha"
-                    class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-            </div>
+        <div>
+            <label for="password_confirmation" class="label-dark">Confirmar senha <span class="text-danger-400">*</span></label>
+            <input wire:model="password_confirmation" id="password_confirmation" type="password"
+                   autocomplete="new-password" placeholder="Repita a senha"
+                   class="input-dark mt-1.5" />
+        </div>
 
-            {{-- Actions --}}
-            <div class="flex items-center justify-end gap-3 pt-2">
-                <a href="{{ route('root.users.index') }}"
-                   class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                    Cancelar
-                </a>
-                <button
-                    type="submit"
-                    wire:loading.attr="disabled"
-                    class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
-                    <span wire:loading.remove>Salvar</span>
-                    <span wire:loading>Salvando…</span>
-                </button>
-            </div>
-        </form>
-    </div>
+        <div class="flex items-center justify-end gap-3 border-t border-white/10 pt-6">
+            <a href="{{ route('root.users.index') }}" class="btn-secondary">Cancelar</a>
+            <button type="submit" wire:loading.attr="disabled" class="btn-primary">
+                <svg wire:loading wire:target="save" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"></circle>
+                    <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                </svg>
+                <span wire:loading.remove wire:target="save">Salvar</span>
+                <span wire:loading wire:target="save">Salvando…</span>
+            </button>
+        </div>
+    </form>
 </div>
