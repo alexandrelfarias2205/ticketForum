@@ -66,6 +66,14 @@ Route::middleware(['auth', 'tenant'])->prefix('app')->name('app.')->group(functi
     Route::delete('reports/attachments/{attachment}', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'destroy'])->name('reports.attachments.destroy');
     Route::get('reports/attachments/{attachment}/download', [\App\Http\Controllers\Tenant\ReportAttachmentController::class, 'download'])->name('reports.attachments.download');
 
+    // Products
+    Route::get('products', \App\Livewire\Tenant\Products\ProductList::class)->name('products.index');
+    Route::get('products/create', \App\Livewire\Tenant\Products\CreateProduct::class)->name('products.create');
+    Route::get('products/{product}/edit', \App\Livewire\Tenant\Products\EditProduct::class)->name('products.edit');
+
+    // Settings
+    Route::get('settings/integrations', \App\Livewire\Tenant\Settings\IntegrationSettings::class)->name('settings.integrations');
+
     // Voting board
     Route::get('voting', \App\Http\Controllers\Tenant\VotingController::class)->name('voting.index');
 
