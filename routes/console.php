@@ -13,3 +13,7 @@ Schedule::command('improvements:promote --limit=5')
     ->mondays()
     ->at('09:00')
     ->withoutOverlapping();
+
+Schedule::command('agent:run-bugs')
+    ->hourly()
+    ->withoutOverlapping();
