@@ -121,5 +121,20 @@ export default {
         },
     },
 
+    safelist: [
+        // badge tones
+        'badge-brand', 'badge-accent', 'badge-success', 'badge-warning', 'badge-danger', 'badge-info', 'badge-neutral',
+        // stat-card icon rings
+        'bg-brand-500/15', 'text-brand-300', 'ring-brand-400/30',
+        'bg-accent-500/15', 'text-accent-300', 'ring-accent-400/30',
+        'bg-success-500/15', 'text-success-400', 'ring-success-400/30',
+        'bg-warning-500/15', 'text-warning-400', 'ring-warning-400/30',
+        'bg-danger-500/15', 'text-danger-400', 'ring-danger-400/30',
+        'bg-info-500/15', 'text-info-400', 'ring-info-400/30',
+        'bg-slate-500/15', 'text-slate-300', 'ring-slate-400/30',
+        // text tones used in pipeline
+        'text-warning-300', 'text-brand-300', 'text-info-300', 'text-success-300',
+    ],
+
     plugins: [forms],
 };

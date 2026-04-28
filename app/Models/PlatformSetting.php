@@ -10,9 +10,6 @@ final class PlatformSetting extends Model
 {
     use HasFactory, HasUuids;
 
-    protected string $keyType = 'string';
-    public bool $incrementing = false;
-
     protected $fillable = [
         'key',
         'value',

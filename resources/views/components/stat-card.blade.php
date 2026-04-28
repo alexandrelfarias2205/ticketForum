@@ -37,9 +37,9 @@
 >
     <div class="flex items-start justify-between gap-3">
         <p class="text-xs font-medium uppercase tracking-wider text-slate-400">{{ $label }}</p>
-        @if($icon)
+        @if(isset($icon) && $icon->isNotEmpty())
             <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset {{ $iconRing }}">
-                {!! $icon !!}
+                {{ $icon }}
             </span>
         @endif
     </div>

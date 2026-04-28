@@ -16,9 +16,8 @@ final class EnsureTenantAccess
             return redirect()->route('login');
         }
 
-        // Root users bypass tenant checks
         if ($user->role->isRoot()) {
-            return $next($request);
+            return redirect()->route('root.dashboard');
         }
 
         // Tenant users must belong to an active tenant

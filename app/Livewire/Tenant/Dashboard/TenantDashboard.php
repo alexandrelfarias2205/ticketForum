@@ -162,6 +162,10 @@ final class TenantDashboard extends Component
 
     private function tenantId(): string
     {
-        return (string) auth()->user()->tenant_id;
+        $id = auth()->user()?->tenant_id;
+        if (! $id) {
+            abort(403, 'Tenant not found.');
+        }
+        return (string) $id;
     }
 }
