@@ -20,9 +20,18 @@ enum ReportType: string
     public function badgeClasses(): string
     {
         return match($this) {
-            self::Bug            => 'bg-red-100 text-red-700',
-            self::Improvement    => 'bg-blue-100 text-blue-700',
-            self::FeatureRequest => 'bg-indigo-100 text-indigo-700',
+            self::Bug            => 'badge badge-danger',
+            self::Improvement    => 'badge badge-info',
+            self::FeatureRequest => 'badge badge-brand',
+        };
+    }
+
+    public function badgeTone(): string
+    {
+        return match($this) {
+            self::Bug            => 'danger',
+            self::Improvement    => 'info',
+            self::FeatureRequest => 'brand',
         };
     }
 }
