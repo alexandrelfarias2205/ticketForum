@@ -24,6 +24,7 @@ class Report extends Model
 
     protected $fillable = [
         'tenant_id',
+        'product_id',
         'author_id',
         'reviewer_id',
         'type',
@@ -36,9 +37,13 @@ class Report extends Model
         'external_issue_id',
         'external_platform',
         'vote_count',
+        'is_duplicate',
+        'duplicate_of_report_id',
         'reviewed_at',
         'published_at',
         'rejection_reason',
+        'agent_branch',
+        'merge_request_url',
     ];
 
     protected function casts(): array
@@ -48,6 +53,7 @@ class Report extends Model
             'status'            => ReportStatus::class,
             'external_platform' => ExternalPlatform::class,
             'vote_count'        => 'integer',
+            'is_duplicate'      => 'boolean',
             'reviewed_at'       => 'datetime',
             'published_at'      => 'datetime',
         ];
@@ -63,6 +69,26 @@ class Report extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function duplicateOf(): BelongsTo
+    {
+        return $this->belongsTo(Report::class, 'duplicate_of_report_id');
+    }
+
+    public function duplicates(): HasMany
+    {
+        return $this->hasMany(Report::class, 'duplicate_of_report_id');
+    }
+
+    public function agentLogs(): HasMany
+    {
+        return $this->hasMany(AgentLog::class);
     }
 
     public function author(): BelongsTo
@@ -116,5 +142,10 @@ class Report extends Model
     {
         return $query->where('status', ReportStatus::PublishedForVoting)
             ->orderByDesc('vote_count');
+    }
+
+    public function scopeNotDuplicate(Builder $query): Builder
+    {
+        return $query->where('is_duplicate', false);
     }
 }

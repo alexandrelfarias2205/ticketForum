@@ -45,6 +45,11 @@ class Tenant extends Model
         return $this->hasMany(Report::class);
     }
 
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
     public function integration(): HasOne
     {
         return $this->hasOne(TenantIntegration::class);
