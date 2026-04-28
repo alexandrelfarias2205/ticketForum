@@ -6,8 +6,8 @@ use App\Enums\TenantPlan;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tenant extends Model
@@ -45,13 +45,9 @@ class Tenant extends Model
         return $this->hasMany(Report::class);
     }
 
-    public function products(): HasMany
+    public function products(): BelongsToMany
     {
-        return $this->hasMany(Product::class);
-    }
-
-    public function integration(): HasOne
-    {
-        return $this->hasOne(TenantIntegration::class);
+        return $this->belongsToMany(Product::class, 'tenant_product')
+            ->withTimestamps();
     }
 }

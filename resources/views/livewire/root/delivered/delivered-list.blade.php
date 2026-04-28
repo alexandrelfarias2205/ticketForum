@@ -29,7 +29,7 @@
         @if($this->reports->isNotEmpty())
             <div class="overflow-x-auto">
                 <table class="table-dark min-w-full">
-                    <thead>
+                    <thead class="table-head">
                         <tr>
                             <th>Título</th>
                             <th>Empresa</th>
@@ -41,7 +41,7 @@
                     </thead>
                     <tbody>
                         @foreach($this->reports as $report)
-                            <tr>
+                            <tr class="table-row">
                                 <td class="max-w-xs">
                                     <span class="block truncate font-medium text-white">{{ $report->title }}</span>
                                 </td>
@@ -86,10 +86,11 @@
             @endif
         @else
             <div class="flex flex-col items-center justify-center py-16 text-center">
-                <svg class="mb-3 h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <svg class="mb-4 h-14 w-14 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-.723 3.066 3.745 3.745 0 01-3.066.723 3.745 3.745 0 01-3.068 1.593 3.745 3.745 0 01-3.067-1.593 3.745 3.745 0 01-3.066-.723 3.745 3.745 0 01-.723-3.066A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 01.723-3.066 3.745 3.745 0 013.066-.723A3.745 3.745 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.745 3.745 0 013.066.723 3.745 3.745 0 01.723 3.066A3.745 3.745 0 0121 12z" />
                 </svg>
-                <p class="font-medium text-slate-300">Nenhuma entrega registrada ainda.</p>
+                <h3 class="font-semibold text-slate-200">Nenhuma entrega registrada</h3>
+                <p class="mt-1 text-sm text-slate-500">As entregas aparecerão aqui quando tickets forem marcados como concluídos.</p>
             </div>
         @endif
     </div>

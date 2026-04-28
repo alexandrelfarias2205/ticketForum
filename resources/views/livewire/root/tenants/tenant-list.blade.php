@@ -29,7 +29,7 @@
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
             <table class="table-dark min-w-full">
-                <thead>
+                <thead class="table-head">
                     <tr>
                         <th>Nome</th>
                         <th>Slug</th>
@@ -40,7 +40,7 @@
                 </thead>
                 <tbody>
                     @forelse($this->tenants as $tenant)
-                        <tr>
+                        <tr class="table-row">
                             <td class="font-medium text-white">{{ $tenant->name }}</td>
                             <td class="text-slate-400">{{ $tenant->slug }}</td>
                             <td class="text-slate-300">{{ $tenant->plan->label() }}</td>
@@ -48,17 +48,29 @@
                                 <x-badge :status="$tenant->is_active ? 'active' : 'inactive'" />
                             </td>
                             <td class="text-right">
-                                <div class="flex items-center justify-end gap-3">
-                                    <a href="{{ route('root.tenants.edit', $tenant) }}"
-                                       class="text-sm font-medium text-brand-300 transition hover:text-brand-200">
+                                <div class="flex items-center justify-end gap-2">
+                                    <x-secondary-button as="a" href="{{ route('root.tenants.edit', $tenant) }}">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                        </svg>
                                         Editar
-                                    </a>
+                                    </x-secondary-button>
                                     @if($tenant->is_active)
-                                        <button wire:click="deactivate('{{ $tenant->id }}')"
-                                                wire:confirm="Tem certeza que deseja desativar esta empresa?"
-                                                class="text-sm font-medium text-danger-400 transition hover:text-danger-300">
+                                        <x-danger-button
+                                            wire:click="deactivate('{{ $tenant->id }}')"
+                                            wire:confirm="Tem certeza que deseja desativar esta empresa?"
+                                            wire:loading.attr="disabled"
+                                            wire:target="deactivate('{{ $tenant->id }}')"
+                                        >
+                                            <svg wire:loading.remove wire:target="deactivate('{{ $tenant->id }}')" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                            </svg>
+                                            <svg wire:loading wire:target="deactivate('{{ $tenant->id }}')" class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"></circle>
+                                                <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                                            </svg>
                                             Desativar
-                                        </button>
+                                        </x-danger-button>
                                     @endif
                                 </div>
                             </td>
@@ -66,11 +78,19 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-16 text-center">
-                                <svg class="mx-auto mb-4 h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <svg class="mx-auto mb-4 h-14 w-14 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
                                 </svg>
-                                <p class="font-medium text-slate-300">Nenhuma empresa encontrada.</p>
+                                <h3 class="font-semibold text-slate-200">Nenhuma empresa encontrada</h3>
                                 <p class="mt-1 text-sm text-slate-500">Tente ajustar a busca ou cadastre uma nova empresa.</p>
+                                <div class="mt-4">
+                                    <x-primary-button as="a" href="{{ route('root.tenants.create') }}">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                        </svg>
+                                        Nova empresa
+                                    </x-primary-button>
+                                </div>
                             </td>
                         </tr>
                     @endforelse

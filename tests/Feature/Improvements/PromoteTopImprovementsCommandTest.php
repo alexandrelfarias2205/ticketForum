@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
+use App\Enums\ExternalPlatform;
 use App\Enums\ReportStatus;
+use App\Models\Product;
+use App\Models\ProductIntegration;
 use App\Models\Report;
 use App\Models\Tenant;
-use App\Models\TenantIntegration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
@@ -11,19 +13,21 @@ use Illuminate\Support\Facades\Queue;
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    $this->tenant = Tenant::factory()->create();
-    $this->author = User::factory()->tenantUser($this->tenant)->create();
+    $this->tenant  = Tenant::factory()->create();
+    $this->author  = User::factory()->tenantUser($this->tenant)->create();
+    $this->product = Product::factory()->create();
+    $this->tenant->products()->attach($this->product);
 
-    // Provide a real TenantIntegration so DispatchIssueCreationAction can resolve a platform
-    TenantIntegration::withoutGlobalScopes()->create([
-        'tenant_id' => $this->tenant->id,
-        'platform'  => 'github',
-        'config'    => encrypt([
+    // Provide a real ProductIntegration so DispatchIssueCreationAction can resolve a platform
+    ProductIntegration::create([
+        'product_id' => $this->product->id,
+        'platform'   => ExternalPlatform::GitHub,
+        'config'     => encrypt([
             'token' => 'ghp_test',
             'owner' => 'acme',
             'repo'  => 'repo',
         ]),
-        'is_active' => true,
+        'is_active'  => true,
     ]);
 
     Queue::fake();
@@ -33,11 +37,13 @@ test('promotes top N improvements to in_progress', function (): void {
     Report::factory()->improvement()->publishedForVoting()->create([
         'tenant_id'  => $this->tenant->id,
         'author_id'  => $this->author->id,
+        'product_id' => $this->product->id,
         'vote_count' => 10,
     ]);
     Report::factory()->improvement()->publishedForVoting()->create([
         'tenant_id'  => $this->tenant->id,
         'author_id'  => $this->author->id,
+        'product_id' => $this->product->id,
         'vote_count' => 5,
     ]);
 
@@ -55,6 +61,7 @@ test('respects --limit option', function (): void {
         Report::factory()->improvement()->publishedForVoting()->create([
             'tenant_id'  => $this->tenant->id,
             'author_id'  => $this->author->id,
+            'product_id' => $this->product->id,
             'vote_count' => $i,
         ]);
     }
@@ -78,12 +85,14 @@ test('does not promote duplicate improvements', function (): void {
     Report::factory()->improvement()->publishedForVoting()->create([
         'tenant_id'    => $this->tenant->id,
         'author_id'    => $this->author->id,
+        'product_id'   => $this->product->id,
         'vote_count'   => 20,
         'is_duplicate' => true,
     ]);
     Report::factory()->improvement()->publishedForVoting()->create([
         'tenant_id'  => $this->tenant->id,
         'author_id'  => $this->author->id,
+        'product_id' => $this->product->id,
         'vote_count' => 5,
     ]);
 

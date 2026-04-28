@@ -38,11 +38,6 @@ class ProductIntegration extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class, 'tenant_id', 'id', 'product');
-    }
-
     /**
      * Decrypt the encrypted config column. Use ONLY inside Jobs/Actions, never log.
      *

@@ -29,7 +29,7 @@
     <div class="card overflow-hidden p-0">
         <div class="overflow-x-auto">
             <table class="table-dark min-w-full">
-                <thead>
+                <thead class="table-head">
                     <tr>
                         <th>Nome</th>
                         <th>E-mail</th>
@@ -41,7 +41,7 @@
                 </thead>
                 <tbody>
                     @forelse($this->users as $user)
-                        <tr>
+                        <tr class="table-row">
                             <td class="font-medium text-white">{{ $user->name }}</td>
                             <td class="text-slate-400">{{ $user->email }}</td>
                             <td class="text-slate-300">{{ $user->tenant?->name ?? 'Root' }}</td>
@@ -50,17 +50,29 @@
                                 <x-badge :status="$user->is_active ? 'active' : 'inactive'" />
                             </td>
                             <td class="text-right">
-                                <div class="flex items-center justify-end gap-3">
-                                    <a href="{{ route('root.users.edit', $user) }}"
-                                       class="text-sm font-medium text-brand-300 transition hover:text-brand-200">
+                                <div class="flex items-center justify-end gap-2">
+                                    <x-secondary-button as="a" href="{{ route('root.users.edit', $user) }}">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                        </svg>
                                         Editar
-                                    </a>
+                                    </x-secondary-button>
                                     @if($user->is_active)
-                                        <button wire:click="deactivate('{{ $user->id }}')"
-                                                wire:confirm="Tem certeza que deseja desativar este usuário?"
-                                                class="text-sm font-medium text-danger-400 transition hover:text-danger-300">
+                                        <x-danger-button
+                                            wire:click="deactivate('{{ $user->id }}')"
+                                            wire:confirm="Tem certeza que deseja desativar este usuário?"
+                                            wire:loading.attr="disabled"
+                                            wire:target="deactivate('{{ $user->id }}')"
+                                        >
+                                            <svg wire:loading.remove wire:target="deactivate('{{ $user->id }}')" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                            </svg>
+                                            <svg wire:loading wire:target="deactivate('{{ $user->id }}')" class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"></circle>
+                                                <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                                            </svg>
                                             Desativar
-                                        </button>
+                                        </x-danger-button>
                                     @endif
                                 </div>
                             </td>
@@ -68,11 +80,19 @@
                     @empty
                         <tr>
                             <td colspan="6" class="px-6 py-16 text-center">
-                                <svg class="mx-auto mb-4 h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <svg class="mx-auto mb-4 h-14 w-14 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                                 </svg>
-                                <p class="font-medium text-slate-300">Nenhum usuário encontrado.</p>
+                                <h3 class="font-semibold text-slate-200">Nenhum usuário encontrado</h3>
                                 <p class="mt-1 text-sm text-slate-500">Tente ajustar a busca ou cadastre um novo usuário.</p>
+                                <div class="mt-4">
+                                    <x-primary-button as="a" href="{{ route('root.users.create') }}">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                        </svg>
+                                        Novo usuário
+                                    </x-primary-button>
+                                </div>
                             </td>
                         </tr>
                     @endforelse

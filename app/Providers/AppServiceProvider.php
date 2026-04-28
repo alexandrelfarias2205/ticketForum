@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Label;
+use App\Models\Product;
 use App\Models\Report;
 use App\Models\ReportAttachment;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Vote;
 use App\Policies\LabelPolicy;
+use App\Policies\ProductPolicy;
 use App\Policies\ReportPolicy;
 use App\Policies\TenantPolicy;
 use App\Policies\UserPolicy;
@@ -45,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ReportAttachment::class, ReportPolicy::class);
         Gate::policy(Label::class, LabelPolicy::class);
         Gate::policy(Vote::class, VotePolicy::class);
+        Gate::policy(Product::class, ProductPolicy::class);
 
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by($request->ip());

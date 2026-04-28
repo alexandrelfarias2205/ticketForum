@@ -54,6 +54,32 @@
             </p>
         </div>
 
+        {{-- Produtos atribuídos --}}
+        <div class="border-t border-white/10 pt-6">
+            <span class="label-dark">Produtos atribuídos</span>
+            <p class="help-text mt-1">Os usuários desta empresa só podem reportar nos produtos selecionados.</p>
+
+            <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                @forelse($this->allProducts as $product)
+                    <label class="flex items-start gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2 transition hover:bg-white/10">
+                        <input type="checkbox" value="{{ $product->id }}" wire:model="selectedProducts"
+                               class="mt-0.5 rounded border-white/20 bg-white/5">
+                        <span class="flex-1">
+                            <span class="block text-sm text-white">{{ $product->name }}</span>
+                            @unless($product->is_active)
+                                <span class="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wider text-amber-300">Arquivado</span>
+                            @endunless
+                        </span>
+                    </label>
+                @empty
+                    <p class="col-span-full rounded-lg border border-dashed border-white/10 px-3 py-4 text-center text-sm text-slate-400">
+                        Nenhum produto cadastrado.
+                        <a href="{{ route('root.products.create') }}" class="text-brand-300 hover:text-brand-200">Criar produto</a>
+                    </p>
+                @endforelse
+            </div>
+        </div>
+
         <div class="flex items-center justify-end gap-3 border-t border-white/10 pt-6">
             <a href="{{ route('root.tenants.index') }}" class="btn-secondary">Cancelar</a>
             <button type="submit" wire:loading.attr="disabled" class="btn-primary">

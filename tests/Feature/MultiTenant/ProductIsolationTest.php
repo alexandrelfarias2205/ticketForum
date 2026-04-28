@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use App\Enums\ExternalPlatform;
 use App\Models\Product;
 use App\Models\ProductIntegration;
 use App\Models\Report;
@@ -16,32 +17,26 @@ beforeEach(function (): void {
     $this->userA = User::factory()->tenantUser($this->tenantA)->create();
     $this->userB = User::factory()->tenantUser($this->tenantB)->create();
 
-    $this->productA = Product::factory()->forTenant($this->tenantA)->create();
-    $this->productB = Product::factory()->forTenant($this->tenantB)->create();
+    // Products are global — both tenants exist in the catalogue, but each is only
+    // attached (via tenant_product pivot) to its own tenant.
+    $this->productA = Product::factory()->create();
+    $this->productB = Product::factory()->create();
+
+    $this->tenantA->products()->attach($this->productA);
+    $this->tenantB->products()->attach($this->productB);
 });
 
-test('tenant A user cannot see tenant B products via TenantScope', function (): void {
-    // When acting as tenant A user, TenantScope should exclude tenant B products
-    $this->actingAs($this->userA);
+test('tenant A only sees its assigned products via the tenant pivot', function (): void {
+    $assigned = $this->tenantA->products()->pluck('products.id')->all();
 
-    $visibleIds = Product::all()->pluck('id')->toArray();
-
-    expect($visibleIds)->toContain((string) $this->productA->id)
-        ->and($visibleIds)->not->toContain((string) $this->productB->id);
+    expect($assigned)->toContain((string) $this->productA->id)
+        ->and($assigned)->not->toContain((string) $this->productB->id);
 });
 
-test('tenant A user cannot see tenant B products even when queried directly', function (): void {
-    $this->actingAs($this->userA);
+test('Reports remain isolated by tenant_id even when product_id is shared', function (): void {
+    // A product COULD be shared by both tenants — assignment is independent of report visibility
+    $this->tenantA->products()->attach($this->productB);
 
-    $product = Product::find($this->productB->id);
-
-    expect($product)->toBeNull();
-});
-
-test('tenant A user cannot create reports under tenant B product', function (): void {
-    // Reports require matching tenant_id; inserting a report with tenantB product
-    // under tenantA violates the constraint — here we verify the Report TenantScope
-    // prevents tenantA user from seeing a report filed under tenantB product.
     $authorB = User::factory()->tenantUser($this->tenantB)->create();
 
     $reportB = Report::factory()->create([
@@ -52,23 +47,23 @@ test('tenant A user cannot create reports under tenant B product', function (): 
 
     $this->actingAs($this->userA);
 
+    // Even though tenantA now has access to productB, reports remain tenant-scoped
     $visible = Report::find($reportB->id);
     expect($visible)->toBeNull();
 });
 
-test('ProductIntegration config can only be accessed through its product tenant', function (): void {
+test('ProductIntegration is owned by the global product, not by any single tenant', function (): void {
     $integrationB = ProductIntegration::factory()
         ->forProduct($this->productB)
         ->gitlab()
         ->create();
 
-    // Acting as tenant A, withoutGlobalScope still shows ProductIntegration
-    // but the Product itself is scoped — verifying tenantB integration links back to tenantB product
-    $integration = ProductIntegration::withoutGlobalScopes()->find($integrationB->id);
-    $product = Product::withoutGlobalScopes()->find($integration->product_id);
+    // Integrations are stored against the global product. Multiple tenants attached
+    // to the same product would share its integration — this is the intended design.
+    $integration = ProductIntegration::find($integrationB->id);
+    $product     = Product::find($integration->product_id);
 
-    expect((string) $product->tenant_id)->toBe((string) $this->tenantB->id)
-        ->and((string) $product->tenant_id)->not->toBe((string) $this->tenantA->id);
+    expect((string) $product->id)->toBe((string) $this->productB->id);
 });
 
 test('root user can see all products across tenants', function (): void {
@@ -76,7 +71,8 @@ test('root user can see all products across tenants', function (): void {
 
     $this->actingAs($root);
 
-    $ids = Product::withoutGlobalScopes()->pluck('id')->map(fn ($id): string => (string) $id)->toArray();
+    // Products are global — no scope to bypass.
+    $ids = Product::pluck('id')->map(fn ($id): string => (string) $id)->toArray();
 
     expect($ids)->toContain((string) $this->productA->id)
         ->and($ids)->toContain((string) $this->productB->id);

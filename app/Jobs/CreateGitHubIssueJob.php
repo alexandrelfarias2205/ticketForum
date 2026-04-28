@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Enums\IntegrationJobStatus;
 use App\Models\IntegrationJob;
+use App\Models\ProductIntegration;
 use App\Models\Report;
-use App\Models\TenantIntegration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,10 +39,15 @@ final class CreateGitHubIssueJob implements ShouldQueue
             return;
         }
 
-        $integration = TenantIntegration::withoutGlobalScopes()
-            ->where('tenant_id', $report->tenant_id)
+        if ($report->product_id === null) {
+            throw new \RuntimeException('Report has no product — cannot resolve GitHub integration.');
+        }
+
+        $integration = ProductIntegration::where('product_id', $report->product_id)
+            ->where('platform', \App\Enums\ExternalPlatform::GitHub->value)
+            ->where('is_active', true)
             ->firstOrFail();
-        $config = decrypt($integration->config); // decrypt HERE only
+        $config = $integration->decryptedConfig(); // decrypt HERE only
 
         $job->update(['status' => IntegrationJobStatus::Processing, 'attempts' => $this->attempts()]);
 

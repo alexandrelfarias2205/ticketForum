@@ -4,7 +4,6 @@ namespace App\Livewire\Reports;
 
 use App\Actions\Reports\CreateReportAction;
 use App\Actions\Reports\StoreLinkAttachmentAction;
-use App\Models\Product;
 use App\Models\Report;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
@@ -33,7 +32,14 @@ final class CreateReport extends Component
     #[Computed]
     public function products(): Collection
     {
-        return Product::where('is_active', true)
+        $tenant = auth()->user()?->tenant;
+
+        if ($tenant === null) {
+            return new Collection();
+        }
+
+        return $tenant->products()
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
     }
