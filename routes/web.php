@@ -46,6 +46,10 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->name('root.')->group(f
 
     // Agent activity dashboard
     Route::get('agent', \App\Livewire\Root\Agent\AgentActivityDashboard::class)->name('agent.dashboard');
+
+    // Platform & agent settings
+    Route::get('settings', \App\Livewire\Root\Settings\PlatformSettings::class)->name('settings');
+    Route::get('settings/agent', \App\Livewire\Root\Settings\AgentSettings::class)->name('settings.agent');
 });
 
 // Tenant routes (tenant_admin + tenant_user)
