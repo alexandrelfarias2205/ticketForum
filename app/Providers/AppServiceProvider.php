@@ -13,8 +13,11 @@ use App\Policies\ReportPolicy;
 use App\Policies\TenantPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VotePolicy;
+use App\Events\PipelineSucceeded;
+use App\Listeners\TransitionCardToCodeReviewListener;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(PipelineSucceeded::class, TransitionCardToCodeReviewListener::class);
+
         Gate::policy(Tenant::class, TenantPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Report::class, ReportPolicy::class);
